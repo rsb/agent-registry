@@ -94,5 +94,105 @@ you will meet: `E0063 missing field` means a selector field was left out;
 selector's variant takes a different source type than the error being
 wrapped, or has none.
 
-**Example.** `crates/engine/src/error.rs` and `tests/error_line.rs` in
-`rsb/lumen`.
+**Example.** A `catalog` crate that loads its index through a lower
+`store` crate. The names are illustrative; no rsb app has these crates.
+
+`crates/store/src/error.rs`:
+
+```rust
+use std::path::PathBuf;
+
+use rsb_errors::Loc;
+use snafu::prelude::*;
+
+#[derive(Debug, Snafu)]
+#[snafu(visibility(pub))]
+pub enum Error {
+    #[snafu(display("read {}{location}: {source}", path.display()))]
+    Read {
+        path: PathBuf,
+        source: std::io::Error,
+        #[snafu(implicit)]
+        location: Loc,
+    },
+    #[snafu(display("parse {} line {line}: {reason}", path.display()))]
+    Parse { path: PathBuf, line: usize, reason: String },
+}
+
+impl Error {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Error::Read { .. } => "store.read",
+            Error::Parse { .. } => "store.parse",
+        }
+    }
+}
+```
+
+`crates/catalog/src/error.rs`:
+
+```rust
+use rsb_errors::Loc;
+use snafu::prelude::*;
+
+#[derive(Debug, Snafu)]
+#[snafu(visibility(pub))]
+pub enum Error {
+    #[snafu(display("load index{location}: {source}"))]
+    LoadIndex {
+        source: store::Error,
+        #[snafu(implicit)]
+        location: Loc,
+    },
+    #[snafu(display("index has {count} entries, more than {max}"))]
+    TooLarge { count: usize, max: usize },
+}
+
+impl Error {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Error::LoadIndex { source, .. } => match source {
+                store::Error::Read { .. } => "catalog.load_index.read",
+                store::Error::Parse { .. } => "catalog.load_index.parse",
+            },
+            Error::TooLarge { .. } => "catalog.too_large",
+        }
+    }
+}
+```
+
+At the call sites:
+
+```rust
+let text = std::fs::read_to_string(path).context(ReadSnafu { path })?;
+let index = store::open(path).context(LoadIndexSnafu)?;
+ensure!(index.len() <= max, TooLargeSnafu { count: index.len(), max });
+```
+
+`crates/catalog/tests/error_line.rs`:
+
+```rust
+use snafu::prelude::*;
+
+fn deepest() -> catalog::Error {
+    let io = std::io::Error::from(std::io::ErrorKind::NotFound);
+    let read = Err::<(), _>(io)
+        .context(store::ReadSnafu { path: "/library/index.toml" })
+        .unwrap_err();
+    Err::<(), _>(read).context(catalog::LoadIndexSnafu).unwrap_err()
+}
+
+#[test]
+fn a_location_per_layer_by_default_and_one_line_when_turned_off() {
+    let e = deepest();
+    let shown = e.to_string();
+    assert_eq!(shown.matches(" (at ").count(), 2, "{shown}");
+
+    rsb_errors::show_locations(false);
+    assert_eq!(
+        e.to_string(),
+        "load index: read /library/index.toml: entity not found"
+    );
+    assert_eq!(e.code(), "catalog.load_index.read");
+}
+```
