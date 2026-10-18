@@ -34,7 +34,7 @@ reference apps.
   `develop`).
 - Binaries are `<app>` for the desktop app and `<app>-cli` for headless use.
 - App ids are the reverse of a domain we hold, fixed before the first desktop
-  entry ships. Decision pending: which domain.
+  entry ships. The domain is `rsb.sh`.
 - App names are capitalised in UI text (Lumen, Pigment, Pica, Spline, Datum)
   and lowercase in every id, path, crate name and binary.
 - Names from the archived attempts are never reused: lab, studio, atlas,
