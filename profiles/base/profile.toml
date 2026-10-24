@@ -1,0 +1,21 @@
+name   = "base"
+parent = ""
+rules  = []
+
+[variables]
+
+[files]
+".githooks/commit-msg"                = "owned"
+".githooks/pre-commit"                = "owned"
+".github/rulesets/versions.json"      = "owned"
+"tools/rules/lib.mjs"                 = "owned"
+"tools/rules/run.mjs"                 = "owned"
+"tools/rules/pointers.mjs"            = "owned"
+"tools/rules/owned-files.mjs"         = "owned"
+"tools/rules/no-ai-attribution.mjs"   = "owned"
+"tools/rules/workflow-pins.mjs"       = "owned"
+"tools/rules/secret-scan.mjs"         = "owned"
+"tools/rules/tests/fixture.mjs"       = "owned"
+"tools/rules/tests/pointers.test.mjs" = "owned"
+"CLAUDE.md"                           = "pointer"
+"AGENTS.md"                           = "merged"

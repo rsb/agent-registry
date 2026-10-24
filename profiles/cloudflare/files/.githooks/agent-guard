@@ -1,0 +1,51 @@
+#!/bin/sh
+# PreToolUse hook for Claude Code's Bash tool. Refuses git, deploy and
+# database commands the agent may not run. It backs up the deny rules
+# in .claude/settings.json, which match text and miss wrapped commands.
+# Exit 2 blocks the command, and stderr is the reason the agent sees.
+
+refuse() {
+  echo "agent-guard: $1" >&2
+  exit 2
+}
+
+command -v jq >/dev/null || refuse "jq is missing; the guard cannot read the command"
+
+input=$(cat)
+cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
+cwd=$(printf '%s' "$input" | jq -r '.cwd // empty')
+[ -n "$cmd" ] || exit 0
+
+has() {
+  printf '%s\n' "$cmd" | grep -Eq -- "$1"
+}
+
+# "git", any global options such as -C dir or -c key=value, then a space.
+git='(^|[^[:alnum:]_./-])git([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+'
+end='([^[:alnum:]_./-]|$)'
+
+branch=$(git -C "${cwd:-.}" symbolic-ref --short -q HEAD)
+
+# Git config keys ignore case, so core.hookspath sets the same thing.
+if printf '%s\n' "$cmd" | grep -iq 'core\.hookspath'; then refuse "changing core.hooksPath is not allowed"; fi
+if has "${git}(commit|push).*--no-v[a-z]*$end|${git}commit.*[[:space:]]-[[:alnum:]]*n[[:alnum:]]*$end"; then
+  refuse "skipping git hooks is not allowed"
+fi
+
+if [ "$branch" = main ] && has "${git}commit$end"; then refuse "no commits on main; branch first"; fi
+if has "${git}push$end"; then
+  if [ "$branch" = main ] || has "${git}push.*[[:space:]:]main$end"; then refuse "no pushes to main"; fi
+  if has "${git}push.*(--force|[[:space:]]-f$end|[[:space:]]\+[^[:space:]])"; then refuse "no force pushes"; fi
+  if has "${git}push.*--(tags|follow-tags)"; then refuse "no tag pushes"; fi
+fi
+if has "${git}tag$end"; then refuse "tags are the owner's"; fi
+if has "${git}reset.*--hard"; then refuse "no git reset --hard"; fi
+if has "${git}rebase$end" && git -C "${cwd:-.}" rev-parse -q --verify '@{u}' >/dev/null; then
+  refuse "no rebase of a branch that has an upstream"
+fi
+if has "(^|[^[:alnum:]_-])gh[[:space:]]+pr[[:space:]]+merge$end"; then refuse "agents never merge; merging is the owner's"; fi
+if has "wrangler[[:space:]]+(deploy|secret|tail|hyperdrive)$end"; then refuse "wrangler deploy, secret, tail and hyperdrive are the owner's"; fi
+if has "(^|[^[:alnum:]_-])supabase$end"; then refuse "the supabase CLI is the owner's"; fi
+if has "deploy:(staging|production)"; then refuse "deploys are the owner's"; fi
+
+exit 0

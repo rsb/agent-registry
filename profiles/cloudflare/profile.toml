@@ -1,0 +1,9 @@
+name   = "cloudflare"
+parent = "service"
+rules  = []
+
+[variables]
+
+[files]
+".claude/settings.json" = "owned"
+".githooks/agent-guard" = "owned"

@@ -1,0 +1,9 @@
+name   = "gordana-milan"
+parent = "cloudflare"
+rules  = []
+
+[variables]
+
+[files]
+"tools/rules/frozen-migrations.mjs"  = "owned"
+"tools/rules/tests/scripts.test.mjs" = "owned"
