@@ -1,0 +1,12 @@
+id            = "rl-0004"
+title         = "Schema.sql matches a dump of the migrations"
+statement     = "Engineering rule migrations/13: schema.sql matches a dump of the migrations."
+source        = { file = "engineering/migrations.md", number = 13 }
+check_class   = "mechanical"
+default_level = "block"
+lifecycle     = "trial"
+
+[[checks]]
+kind = "ci-step"
+ref  = "packages/db/schema.sql"
+ci   = { file = ".github/workflows/pr.yml", job = "tests", step = "schema.sql matches the migrations" }

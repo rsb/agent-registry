@@ -1,6 +1,6 @@
 name   = "base"
 parent = ""
-rules  = []
+rules  = ["rl-0009", "rl-0010", "rl-0011", "rl-0012"]
 
 [variables]
 

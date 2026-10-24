@@ -1,0 +1,17 @@
+id            = "rl-0006"
+title         = "A code PR runs the BFF's checks, tests, build and journeys"
+statement     = "Engineering rule bff/21: a code PR runs the BFF's checks, tests, build and journeys."
+source        = { file = "engineering/bff.md", number = 21 }
+check_class   = "mechanical"
+default_level = "block"
+lifecycle     = "trial"
+
+[[checks]]
+kind = "ci-step"
+ref  = "apps/web/package.json"
+ci   = { file = ".github/workflows/pr.yml", job = "checks", step = "pnpm --filter @gm/web build" }
+
+[[checks]]
+kind = "ci-step"
+ref  = "apps/web/package.json"
+ci   = { file = ".github/workflows/pr.yml", job = "tests", step = "pnpm --filter @gm/web e2e" }

@@ -1,0 +1,12 @@
+id            = "rl-0003"
+title         = "The bootstrap's roles and grants match the expected-privileges list"
+statement     = "Engineering rule migrations/3: the bootstrap's roles and grants match the expected-privileges list."
+source        = { file = "engineering/migrations.md", number = 3 }
+check_class   = "mechanical"
+default_level = "block"
+lifecycle     = "trial"
+
+[[checks]]
+kind = "test"
+ref  = "packages/db/tests/privileges.test.ts"
+ci   = { file = ".github/workflows/pr.yml", job = "tests", step = "pnpm test" }
