@@ -1,19 +1,39 @@
 # rsb agent-registry
 
-Standards shared by the rsb apps, and the registry the coding agents are
-held to: rules, their checks, patterns and, in time, the profiles repos are
-minted from. Easel (`../easel`) reads this repository; it holds no rule
-content of its own.
+The registry the coding agents are held to, and the standards shared by the
+rsb apps. It is part of RSB Workflow (`rsb-workflow`), the system that takes
+an accepted ticket to a merged change with an agent as the implementer and
+evidence in place of review. Gauge (`../gauge`), the workflow's engine,
+reads this repository; it holds no rule content of its own. Agents never
+read it: they read what Gauge renders from it.
 
-A standard enters this repository only when a second app needs it; until
-then it lives in the app's own `engineering/`. Naming is the one exception,
-because it is family-level by definition.
+## What lives here
+
+- `rules/`: one TOML file per rule, `rules/<id>.toml`. Ids are opaque
+  (`rl-NNNN`), assigned in creation order and never reused; a retired rule
+  stays. A rule that restates an app's own numbered rule points at it
+  (`source = { file, number }`) and never copies its text.
+- `profiles/`: the layers repos are minted and reconciled from, chained
+  `base › kind › variant › repo` (for example
+  `base › service › cloudflare › gordana-milan`). Each layer has a
+  `profile.toml` (parent, the rules it selects, its files and their
+  ownership class: owned, pointer, merged or sample) and a `files/` tree.
+- `standards/`: prose standards shared by the Rust apps.
+
+`rules/` and `profiles/` move together at one revision, so a rule and the
+profile that selects it land in one commit. A single PR changes one of the
+two trees, not both.
+
+A rule may serve one repo. A standard enters `standards/` only when a
+second app needs it; until then it lives in the app's own `engineering/`.
+Naming is the one exception, because it is family-level by definition.
 
 ## Standards
 
 One file per standard in `standards/`. Each has a Why, a Paths and a
 Check section; an app's `engineering/` holds a pointer to the standard,
-the app's boundary, and the check that enforces it there.
+the app's boundary, and the check that enforces it there. These become
+material for the `rust-linux` profile layer.
 
 - `errors.md`: one snafu enum per crate, `{e}` is the whole line, with
   the file and line of each layer on by default.
@@ -29,15 +49,21 @@ repository `rsb/errors-rs`, pinned by tag (`v0.1.1`).
 | App | What it is | Repository |
 |---|---|---|
 | Lumen | raw developer and photo catalog | `rsb/lumen` |
-| Easel | control center for the agent workflow: rule registry, checks, scorecards, minting | `rsb/easel` |
 | Pigment | pixel editor | not started |
 | Pica | page layout | not started |
 | Spline | vector drawing | not started |
 | Datum | CAD | not started |
 
-The theme is the base unit of each medium; Easel is the exception by
-design, the stand the others are made on. Each app's README names its own
+The theme is the base unit of each medium. Each app's README names its own
 reference apps.
+
+RSB Workflow's own pieces are not suite apps:
+
+| Piece | What it is | Where |
+|---|---|---|
+| Gauge | the engine: registry, renders, sensing, the verdict, rule statistics; CLI `gauge` | `rsb/gauge` |
+| Insights | the owner's desktop view across the workflow and all projects; composes what the CLI offers, holds no domain logic | package in `rsb/gauge` |
+| `agent-driver` | the only binary that holds the GitHub App key; observes and acts on GitHub, runs the tick | `rsb/agent-driver`, moving into `rsb/gauge` as a package |
 
 ## Naming
 
@@ -46,41 +72,51 @@ reference apps.
   in About text.
 - Repositories are `rsb/<name>` on GitHub and
   `~/code/software/rsb/<group>/<name>` locally, with the same `<name>`. The
-  groups are `desktop`, `services`, `lib` and `orchestration`. A group is
-  for the owner; a repository declares its own kind and variant, and no
-  tool infers them from the group.
-- Creative names are reserved for the desktop apps and suites.
-  Infrastructure repositories get descriptive names; those in
-  `orchestration/` that serve only the agent carry the `agent-` prefix.
-  `skills` and `easel` serve the owner too and carry none.
+  groups are `desktop`, `services`, `lib` and `orchestration`; `research`
+  sits at the root. A group is for the owner; a repository declares its own
+  kind and variant, and no tool infers them from the group.
+- Names come from vocabularies. Creative names from the art vocabulary
+  (Lumen, Pigment, Pica, Spline, Datum) are reserved for the creative
+  suite. A system with its own identity takes a proper name from another
+  vocabulary: Gauge is from metrology. Infrastructure is descriptive.
+- The `agent-` prefix marks a subsystem that serves only the agent, whether
+  it is a repository or a workspace package: `agent-box`, `agent-host`,
+  `agent-registry`, `agent-driver`. In `agent-driver` it also marks the
+  custody boundary. `rsb-skills` and `research` serve the owner too and
+  carry none.
+- Binaries: the bare name belongs to the primary surface. A desktop-first
+  app's GUI is `<app>` and any headless tool is `<app>-cli` (`lumen`,
+  `lumen-cli`). A headless-first system's CLI is the bare name (`gauge`).
+- Crates inside one workspace are bare unless they are meant for use
+  outside it; crates shared across apps carry the prefix `rsb-`
+  (`rsb-errors`, `rsb-libraw`). Gauge's crates are `rsb-gauge` and
+  `rsb-gauge-cli`.
 - Configuration lives in `~/.config/rsb/<app>/`, data in
   `~/.local/share/rsb/<app>/`. The monitor-to-ICC-profile map is shared by all
   apps at `~/.config/rsb/monitors.toml`.
-- Crates shared across apps carry the prefix `rsb-` (`rsb-ui`, `rsb-color`,
-  `rsb-libraw`). Crates inside one app's workspace are bare (`catalog`,
-  `develop`).
-- Binaries are `<app>` for the desktop app and `<app>-cli` for headless use.
 - App ids are the reverse of a domain we hold, fixed before the first desktop
   entry ships. The domain is `rsb.sh`.
-- App names are capitalised in UI text (Lumen, Easel, Pigment, Pica, Spline,
-  Datum) and lowercase in every id, path, crate name and binary.
+- App names are capitalised in UI text and lowercase in every id, path,
+  crate name and binary.
 - Names from the archived attempts are never reused: lab, studio, atlas,
-  observatory. Easel was retired with the UI toolkit attempt and reissued
-  on 2026-10-19 to the control center, because it names the stand the
-  studio's apps are made on. `lab` survives only as a crate inside the Easel
-  workspace. Any surviving reference to the toolkit is renamed or deleted.
+  observatory. Easel named the archived UI toolkit, was reissued on
+  2026-10-19 to the workflow's control center, and was retired from it on
+  2026-10-23 when the engine became Gauge. Whether Easel returns to the
+  creative suite is open.
 
 ## Repositories
 
 - `rsb/agent-registry`: this repository. Renamed from `rsb/rules` on
   2026-10-19.
-- `rsb/skills`: how the owner and agents work. Not prefixed: the skills
-  are the owner's as much as the agent's.
-- `rsb/agent-driver`: the host-side gatekeeper that holds the GitHub App
-  key and does GitHub actions for agents.
-- `rsb/agent-box`: the container agents run in away from the desk.
-- `rsb/easel`: the control center that reads this registry.
-- `rsb/research`: research, studies, retrospectives, drafts. Renamed from
+- `rsb/gauge`: RSB Workflow's engine monorepo (library, CLI `gauge`,
+  Insights, and in time `agent-driver`). Being renamed from `rsb/easel`.
+- `rsb/agent-driver`: the host-side gatekeeper that holds the GitHub App key
+  and does GitHub actions for agents. Moves into `rsb/gauge` as a package.
+- `rsb/agent-box`: the bubblewrap sandbox; the only place an agent runs.
+- `rsb/agent-host`: the at-desk sandbox configuration, kept in git.
+- `rsb/rsb-skills`: how the owner and agents work.
+- `rsb/research`: research, decisions, handoffs and retrospectives, one
+  folder per effort; `rsb-workflow/` is RSB Workflow's. Renamed from
   `rsb/notes` on 2026-10-19. Never referenced from an app's `AGENTS.md`.
 - `rsb/errors-rs`: the `rsb-errors` crate, runtime pieces and checks of
   the errors, panics and logging standards. Public, because `rsb/libraw`
