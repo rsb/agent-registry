@@ -1,0 +1,7 @@
+#!/bin/sh
+# Refuses commits on main. Changes reach main through a pull request.
+
+if [ "$(git symbolic-ref --short -q HEAD)" = main ]; then
+  echo "pre-commit: no commits on main; branch first" >&2
+  exit 1
+fi

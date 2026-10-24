@@ -1,0 +1,8 @@
+name   = "service"
+parent = "base"
+rules  = []
+
+[variables]
+
+[files]
+".github/rulesets/main.json" = "owned"
