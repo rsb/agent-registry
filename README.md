@@ -1,8 +1,13 @@
-# rsb rules
+# rsb agent-registry
 
-Standards shared by the rsb apps. A standard enters this repository only when a
-second app needs it; until then it lives in the app's own `engineering/`.
-Naming is the one exception, because it is family-level by definition.
+Standards shared by the rsb apps, and the registry the coding agents are
+held to: rules, their checks, patterns and, in time, the profiles repos are
+minted from. Easel (`../easel`) reads this repository; it holds no rule
+content of its own.
+
+A standard enters this repository only when a second app needs it; until
+then it lives in the app's own `engineering/`. Naming is the one exception,
+because it is family-level by definition.
 
 ## Standards
 
@@ -24,12 +29,14 @@ repository `rsb/errors-rs`, pinned by tag (`v0.1.1`).
 | App | What it is | Repository |
 |---|---|---|
 | Lumen | raw developer and photo catalog | `rsb/lumen` |
+| Easel | control center for the agent workflow: rule registry, checks, scorecards, minting | `rsb/easel` |
 | Pigment | pixel editor | not started |
 | Pica | page layout | not started |
 | Spline | vector drawing | not started |
 | Datum | CAD | not started |
 
-The theme is the base unit of each medium. Each app's README names its own
+The theme is the base unit of each medium; Easel is the exception by
+design, the stand the others are made on. Each app's README names its own
 reference apps.
 
 ## Naming
@@ -37,8 +44,15 @@ reference apps.
 - `rsb` is the organisation and the brand in every machine-facing name. It is
   always lowercase. `rsb.lab` appears only in prose about the photography and
   in About text.
-- Repositories are `rsb/<name>` on GitHub and `~/code/software/rsb/<name>`
-  locally.
+- Repositories are `rsb/<name>` on GitHub and
+  `~/code/software/rsb/<group>/<name>` locally, with the same `<name>`. The
+  groups are `desktop`, `services`, `lib` and `orchestration`. A group is
+  for the owner; a repository declares its own kind and variant, and no
+  tool infers them from the group.
+- Creative names are reserved for the desktop apps and suites.
+  Infrastructure repositories get descriptive names; those in
+  `orchestration/` that serve only the agent carry the `agent-` prefix.
+  `skills` and `easel` serve the owner too and carry none.
 - Configuration lives in `~/.config/rsb/<app>/`, data in
   `~/.local/share/rsb/<app>/`. The monitor-to-ICC-profile map is shared by all
   apps at `~/.config/rsb/monitors.toml`.
@@ -48,17 +62,26 @@ reference apps.
 - Binaries are `<app>` for the desktop app and `<app>-cli` for headless use.
 - App ids are the reverse of a domain we hold, fixed before the first desktop
   entry ships. The domain is `rsb.sh`.
-- App names are capitalised in UI text (Lumen, Pigment, Pica, Spline, Datum)
-  and lowercase in every id, path, crate name and binary.
+- App names are capitalised in UI text (Lumen, Easel, Pigment, Pica, Spline,
+  Datum) and lowercase in every id, path, crate name and binary.
 - Names from the archived attempts are never reused: lab, studio, atlas,
-  observatory, easel.
+  observatory. Easel was retired with the UI toolkit attempt and reissued
+  on 2026-10-19 to the control center, because it names the stand the
+  studio's apps are made on. `lab` survives only as a crate inside the Easel
+  workspace. Any surviving reference to the toolkit is renamed or deleted.
 
 ## Repositories
 
-- `rsb/rules`: this repository.
-- `rsb/notes`: research, studies, retrospectives, drafts. Never referenced from
-  an app's `AGENTS.md`.
-- `rsb/skills`: how the owner and agents work.
+- `rsb/agent-registry`: this repository. Renamed from `rsb/rules` on
+  2026-10-19.
+- `rsb/skills`: how the owner and agents work. Not prefixed: the skills
+  are the owner's as much as the agent's.
+- `rsb/agent-driver`: the host-side gatekeeper that holds the GitHub App
+  key and does GitHub actions for agents.
+- `rsb/agent-box`: the container agents run in away from the desk.
+- `rsb/easel`: the control center that reads this registry.
+- `rsb/research`: research, studies, retrospectives, drafts. Renamed from
+  `rsb/notes` on 2026-10-19. Never referenced from an app's `AGENTS.md`.
 - `rsb/errors-rs`: the `rsb-errors` crate, runtime pieces and checks of
   the errors, panics and logging standards. Public, because `rsb/libraw`
   is public and depends on it.
