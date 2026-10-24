@@ -1,6 +1,6 @@
 name   = "gordana-milan"
 parent = "cloudflare"
-rules  = []
+rules  = ["rl-0001", "rl-0002", "rl-0003", "rl-0004", "rl-0005", "rl-0006", "rl-0007", "rl-0008"]
 
 [variables]
 

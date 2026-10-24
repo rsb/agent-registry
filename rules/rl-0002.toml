@@ -1,0 +1,12 @@
+id            = "rl-0002"
+title         = "A package imports only what its package.json declares"
+statement     = "Engineering rule monorepo/9: a package imports only what its package.json declares."
+source        = { file = "engineering/monorepo.md", number = 9 }
+check_class   = "mechanical"
+default_level = "block"
+lifecycle     = "trial"
+
+[[checks]]
+kind = "ci-step"
+ref  = "knip.json"
+ci   = { file = ".github/workflows/pr.yml", job = "checks", step = "pnpm knip" }

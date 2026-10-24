@@ -1,0 +1,12 @@
+id            = "rl-0007"
+title         = "End-to-end journeys run in Playwright against the local stack"
+statement     = "Engineering rule bff/18: end-to-end journeys run in Playwright against the local stack."
+source        = { file = "engineering/bff.md", number = 18 }
+check_class   = "mechanical"
+default_level = "block"
+lifecycle     = "trial"
+
+[[checks]]
+kind = "ci-step"
+ref  = "apps/web/e2e"
+ci   = { file = ".github/workflows/pr.yml", job = "tests", step = "pnpm --filter @gm/web e2e" }

@@ -1,0 +1,17 @@
+id            = "rl-0005"
+title         = "A code PR runs the API's checks, tests and startup check"
+statement     = "Engineering rule api/78: a code PR runs the API's checks, tests and startup check."
+source        = { file = "engineering/api.md", number = 78 }
+check_class   = "mechanical"
+default_level = "block"
+lifecycle     = "trial"
+
+[[checks]]
+kind = "ci-step"
+ref  = "apps/api/package.json"
+ci   = { file = ".github/workflows/pr.yml", job = "checks", step = "pnpm --filter @gm/api check:startup" }
+
+[[checks]]
+kind = "ci-step"
+ref  = "package.json"
+ci   = { file = ".github/workflows/pr.yml", job = "tests", step = "pnpm test" }
