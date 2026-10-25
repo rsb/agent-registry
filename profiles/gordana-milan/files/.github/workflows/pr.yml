@@ -16,13 +16,16 @@ permissions:
 # writes .scorecard/<stage>.json; each job uploads its .scorecard/ and the
 # scorecard job judges them. A failing step skips the steps after it, so
 # every step after a job's first stage carries !cancelled().
+#
+# Runners are pinned to ubuntu-24.04, not ubuntu-latest, so the image
+# changes only with a commit.
 
 jobs:
   # code: false when the PR changes documentation only, and checks and
   # tests are skipped. A push to main is always code, so it runs every
   # check, test and journey.
   changes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       code: ${{ steps.pr.outputs.code || steps.push.outputs.code }}
     steps:
@@ -43,7 +46,7 @@ jobs:
   checks:
     needs: changes
     if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
@@ -76,7 +79,7 @@ jobs:
   tests:
     needs: changes
     if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       postgres:
         image: postgres:17
@@ -142,7 +145,7 @@ jobs:
   # The rule scripts over the PR's commits (or the push's), and the
   # tools' own tests. Node built-ins only, so no install.
   rules:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -169,7 +172,7 @@ jobs:
   mutation:
     if: vars.RSB_MUTATION == 'on'
     continue-on-error: true
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - run: echo "No mutation tool is configured."
 
@@ -179,7 +182,7 @@ jobs:
     name: scorecard
     needs: [changes, checks, tests, rules]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       # The attempt's run_started_at, for verdict_seconds.
