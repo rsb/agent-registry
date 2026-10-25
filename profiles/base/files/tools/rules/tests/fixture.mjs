@@ -28,13 +28,7 @@ export function write(root, files) {
   }
 }
 
-// base: files on main. Returns { root, commit(files, message), git(args) }.
-export function repo(base) {
-  const root = mkdtempSync(join(tmpdir(), 'rules-fixture-'));
-  sh(root, ['init', '-q', '-b', 'main']);
-  write(root, base);
-  sh(root, ['add', '-A']);
-  sh(root, ['commit', '-q', '-m', 'chore: base']);
+const fixture = (root) => {
   sh(root, ['switch', '-q', '-c', 'pr']);
   return {
     root,
@@ -45,6 +39,24 @@ export function repo(base) {
       return sh(root, ['commit', '-q', '-m', message]);
     },
   };
+};
+
+// base: files on main. Returns { root, commit(files, message), git(args) }.
+export function repo(base) {
+  const root = mkdtempSync(join(tmpdir(), 'rules-fixture-'));
+  sh(root, ['init', '-q', '-b', 'main']);
+  write(root, base);
+  sh(root, ['add', '-A']);
+  sh(root, ['commit', '-q', '-m', 'chore: base']);
+  return fixture(root);
+}
+
+// This repo's HEAD as main, for checks that need the real tree.
+export function clone() {
+  const root = mkdtempSync(join(tmpdir(), 'rules-clone-'));
+  sh(root, ['clone', '-q', '--no-local', '--depth', '1', `file://${join(RULES, '../..')}`, '.']);
+  sh(root, ['switch', '-q', '-c', 'main']);
+  return fixture(root);
 }
 
 // Runs a rule script against the fixture and returns its JSON line.

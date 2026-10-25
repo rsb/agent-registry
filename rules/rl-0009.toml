@@ -10,3 +10,4 @@ lifecycle     = "trial"
 [[checks]]
 kind = "script"
 ref  = "tools/rules/owned-files.mjs"
+ci   = { file = ".github/workflows/pr.yml", job = "rules", step = "node tools/rules/run.mjs --ci" }

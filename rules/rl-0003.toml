@@ -9,4 +9,4 @@ lifecycle     = "trial"
 [[checks]]
 kind = "test"
 ref  = "packages/db/tests/privileges.test.ts"
-ci   = { file = ".github/workflows/pr.yml", job = "tests", step = "pnpm test" }
+ci   = { file = ".github/workflows/pr.yml", job = "tests", step = "pnpm --filter @gm/db test" }

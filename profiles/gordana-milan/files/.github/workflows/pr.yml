@@ -1,0 +1,219 @@
+name: PR
+
+# No paths filter: scorecard is the one required check, and a required
+# check whose workflow does not run blocks the PR for good. A docs-only
+# PR skips what it does not need through the changes job instead.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Each step that is a stage runs through tools/ci/run-stage.mjs, which
+# writes .scorecard/<stage>.json; each job uploads its .scorecard/ and the
+# scorecard job judges them. A failing step skips the steps after it, so
+# every step after a job's first stage carries !cancelled().
+
+jobs:
+  # code: false when the PR changes documentation only, and checks and
+  # tests are skipped. A push to main is always code, so it runs every
+  # check, test and journey.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.pr.outputs.code || steps.push.outputs.code }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      - id: pr
+        if: github.event_name == 'pull_request'
+        run: node tools/ci/changes.mjs --base "origin/$BASE_REF" --head "$HEAD_SHA"
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      - id: push
+        if: github.event_name == 'push'
+        run: echo code=true >> "$GITHUB_OUTPUT"
+
+  # Skipped on a docs-only PR, as monorepo rule 11 has it.
+  checks:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+      - run: pnpm install --frozen-lockfile
+      - run: node tools/ci/run-stage.mjs --stage typecheck -- pnpm typecheck
+      - if: ${{ !cancelled() }}
+        run: node tools/ci/run-stage.mjs --stage lint -- pnpm lint
+      - if: ${{ !cancelled() }}
+        run: node tools/ci/run-stage.mjs --stage knip -- pnpm knip
+      # The build is a test (BFF rule 21).
+      - if: ${{ !cancelled() }}
+        run: node tools/ci/run-stage.mjs --stage build -- pnpm --filter @gm/web build
+      # Fails if the API's bundle does not build or its module scope throws;
+      # prints startup CPU and bundle size without failing on them (API
+      # rule 78).
+      - if: ${{ !cancelled() }}
+        run: node tools/ci/run-stage.mjs --stage startup -- pnpm --filter @gm/api check:startup
+      - name: Upload the stage results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: scorecard-checks
+          path: .scorecard/
+          include-hidden-files: true
+          overwrite: true
+
+  # The tests run against Postgres 17, production's major version (API
+  # rule 78). The template is built here as it is locally, from the
+  # migrations, without migration rule 14's cached dump for now.
+  tests:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # The service container's superuser, with a throwaway password.
+      DAYBOOK_ADMIN_URL: postgres://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      # schema.sql needs pg_dump 17 (migration rule 13); the runner's own
+      # client is older.
+      - name: Install the Postgres 17 client
+        run: |
+          sudo apt-get install -y postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client-17
+          echo /usr/lib/postgresql/17/bin >> "$GITHUB_PATH"
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:setup
+      # pnpm test, split so the db package's tests are a stage of their
+      # own; the two filters cover the same packages.
+      - run: node tools/ci/run-stage.mjs --stage db-tests --counts vitest -- pnpm --filter @gm/db test
+      - if: ${{ !cancelled() }}
+        run: node tools/ci/run-stage.mjs --stage unit --counts vitest -- pnpm --recursive --filter '!@gm/db' test
+      # The journeys (BFF rules 18 and 21), on their own database.
+      - if: ${{ !cancelled() }}
+        run: pnpm --filter @gm/web exec playwright install --with-deps --only-shell chromium
+      - if: ${{ !cancelled() }}
+        run: node tools/ci/run-stage.mjs --stage e2e --counts playwright -- pnpm --filter @gm/web e2e
+      - name: Upload the journeys' traces
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: playwright-traces
+          path: apps/web/test-results/
+          retention-days: 7
+      # Shows a schema.sql never committed as a diff too.
+      - name: schema.sql matches the migrations
+        if: ${{ !cancelled() }}
+        run: >-
+          node tools/ci/run-stage.mjs --stage schema-diff -- sh -ec '
+          pnpm db:schema;
+          git add --intent-to-add packages/db/schema.sql;
+          git diff --exit-code packages/db/schema.sql'
+      - name: Upload the stage results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: scorecard-tests
+          path: .scorecard/
+          include-hidden-files: true
+          overwrite: true
+
+  # The rule scripts over the PR's commits (or the push's), and the
+  # tools' own tests. Node built-ins only, so no install.
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      - run: >-
+          node tools/ci/run-stage.mjs --stage rules --tee .scorecard/rules.jsonl --
+          node tools/rules/run.mjs --ci --base "$BASE" --head "$HEAD_SHA"
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      - if: ${{ !cancelled() }}
+        run: node tools/ci/run-stage.mjs --stage tools -- node --test tools/rules/tests/*.test.mjs tools/ci/tests/*.test.mjs
+      - name: Upload the stage results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: scorecard-rules
+          path: .scorecard/
+          include-hidden-files: true
+          overwrite: true
+
+  # Non-blocking placeholder: no JavaScript mutation tool is chosen yet.
+  # Never required, and scorecard does not wait for it.
+  mutation:
+    if: vars.RSB_MUTATION == 'on'
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "No mutation tool is configured."
+
+  # The one required check. A skipped required job counts as passing, so
+  # always() is the only condition it may carry.
+  scorecard:
+    name: scorecard
+    needs: [changes, checks, tests, rules]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # The attempt's run_started_at, for verdict_seconds.
+      actions: read
+      # The exception label and body line, read live, and the sticky
+      # comment.
+      pull-requests: write
+    steps:
+      # The history, for lines changed.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      # A job that uploaded nothing reads as stages that did not report,
+      # so a failed download still leaves the verdict to the script.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        continue-on-error: true
+        with:
+          pattern: scorecard-*
+          merge-multiple: true
+          path: .scorecard/
+      - run: node tools/ci/scorecard.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CODE: ${{ needs.changes.outputs.code }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+      # The history row, which the desk script records once the PR merges.
+      # Not named scorecard-*, so a rerun's download does not read it as a
+      # stage.
+      - name: Upload the history row
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: history-row
+          path: row.json
+          overwrite: true
