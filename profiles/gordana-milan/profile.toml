@@ -11,6 +11,7 @@ rules  = ["rl-0001", "rl-0002", "rl-0003", "rl-0004", "rl-0005", "rl-0006", "rl-
 # A docs-only PR skips checks and tests through the changes job instead.
 # Do not reintroduce the filter for speed.
 ".github/workflows/pr.yml"             = "owned"
+".github/workflows/deploy.yml"         = "owned"
 "tools/ci/changes.mjs"                 = "owned"
 "tools/ci/counts.mjs"                  = "owned"
 "tools/ci/report.mjs"                  = "owned"

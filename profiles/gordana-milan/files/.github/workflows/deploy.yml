@@ -1,0 +1,94 @@
+name: Deploy
+
+# Staging on a merge to `main` that changes code; production on a `v*` tag
+# the owner pushes (decision 0004, monorepo rule 11). GitHub does not
+# apply `paths` to a tag, so a tag always runs the whole job.
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+    paths:
+      - apps/**
+      - packages/**
+      - package.json
+      - pnpm-workspace.yaml
+      - pnpm-lock.yaml
+      - tsconfig*.json
+      - .github/workflows/**
+
+permissions:
+  contents: read
+
+jobs:
+  # One job: migrate, then the API, then web, each only if the one before
+  # succeeded (monorepo rule 10). The two environments differ only in
+  # their GitHub environment, which holds their secrets (migration rule
+  # 17, shared rule 32).
+  deploy:
+    # Pinned, not ubuntu-latest: production's image changes only with a
+    # commit.
+    runs-on: ubuntu-24.04
+    environment: ${{ github.ref_type == 'tag' && 'production' || 'staging' }}
+    # One deploy at a time per environment; a queued one waits rather
+    # than cancelling one mid-migration.
+    concurrency:
+      group: deploy-${{ github.ref_type == 'tag' && 'production' || 'staging' }}
+      cancel-in-progress: false
+    env:
+      DEPLOY_ENV: ${{ github.ref_type == 'tag' && 'production' || 'staging' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # The whole history, to see that a tag is on `main`.
+          fetch-depth: 0
+
+      # What reaches production is a commit that was on `main` and ran on
+      # staging first (decision 0004).
+      - name: The tagged commit is on main
+        if: env.DEPLOY_ENV == 'production'
+        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+      - run: pnpm install --frozen-lockfile
+
+      # Built before anything changes, so a broken build migrates nothing.
+      - run: pnpm --filter @gm/web build
+
+      # A pending migration marked `-- night` waits for 7pm–6am in Los
+      # Angeles in production; staging ignores the marker (migration rule
+      # 12).
+      - name: Night migrations wait for the night
+        if: env.DEPLOY_ENV == 'production'
+        working-directory: packages/db
+        env:
+          DBMATE_DATABASE_URL: ${{ secrets.DBMATE_DATABASE_URL }}
+        run: |
+          pending=$(pnpm exec dbmate --env DBMATE_DATABASE_URL --env-file /dev/null \
+            --migrations-dir migrations --migrations-table daybook.schema_migrations \
+            status | sed -n 's/^\[ \] //p')
+          marked=$(for file in $pending; do grep -lx -- '-- night' "migrations/$file" || true; done)
+          hour=$(TZ=America/Los_Angeles date +%-H)
+          if [ -n "$marked" ] && [ "$hour" -ge 6 ] && [ "$hour" -lt 19 ]; then
+            echo "::error::Marked -- night, so held until 7pm–6am America/Los_Angeles:" $marked
+            exit 1
+          fi
+
+      # As `daybook_migrator` through the session pooler (migration rule 16).
+      - name: Migrate
+        working-directory: packages/db
+        env:
+          DBMATE_DATABASE_URL: ${{ secrets.DBMATE_DATABASE_URL }}
+        run: >-
+          pnpm exec dbmate --env DBMATE_DATABASE_URL --env-file /dev/null
+          --migrations-dir migrations --migrations-table daybook.schema_migrations
+          --no-dump-schema migrate --strict
+
+      - name: Deploy the API
+        run: pnpm --filter @gm/api exec wrangler deploy --env "$DEPLOY_ENV"
+
+      - name: Deploy web
+        run: pnpm --filter @gm/web exec wrangler deploy --env "$DEPLOY_ENV"
