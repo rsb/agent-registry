@@ -17,7 +17,8 @@ read it: they read what Gauge renders from it.
   `base › kind › variant › repo` (for example
   `base › service › cloudflare › gordana-milan`). Each layer has a
   `profile.toml` (parent, the rules it selects, its files and their
-  ownership class: owned, pointer, merged or sample) and a `files/` tree.
+  ownership class: owned, pointer, merged, rendered or sample; see "How
+  governance files are checked") and a `files/` tree.
 - `standards/`: prose standards shared by the Rust apps.
 
 `rules/` and `profiles/` move together at one revision, so a rule and the
