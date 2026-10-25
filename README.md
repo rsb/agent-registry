@@ -28,6 +28,18 @@ A rule may serve one repo. A standard enters `standards/` only when a
 second app needs it; until then it lives in the app's own `engineering/`.
 Naming is the one exception, because it is family-level by definition.
 
+## How governance files are checked
+
+- Owned: has a template in a layer's `files/`. `overlay-diff.sh`
+  compares it with the repo byte for byte and by mode; in CI, rl-0009
+  reports any change to it that has no recorded exception.
+- Pointer: compared byte for byte, like an owned file (`CLAUDE.md`).
+  `overlay-diff.sh` and rl-0009 check it in the same way.
+- Rendered: `tools/rules/rules.json` and the `rsb:rules` region of
+  `AGENTS.md`. The render produces them, and no layer carries a copy, so
+  `overlay-diff.sh` does not check them. In CI, rl-0009 reports changes
+  to them like changes to an owned file.
+
 ## Standards
 
 One file per standard in `standards/`. Each has a Why, a Paths and a

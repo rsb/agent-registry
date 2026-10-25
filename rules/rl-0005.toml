@@ -13,5 +13,5 @@ ci   = { file = ".github/workflows/pr.yml", job = "checks", step = "pnpm --filte
 
 [[checks]]
 kind = "ci-step"
-ref  = "package.json"
-ci   = { file = ".github/workflows/pr.yml", job = "tests", step = "pnpm test" }
+ref  = "apps/api/package.json"
+ci   = { file = ".github/workflows/pr.yml", job = "tests", step = "pnpm --recursive --filter '!@gm/db' test" }

@@ -21,6 +21,13 @@
         "require_extra_approval_for_unattributed_changes": true,
         "allowed_merge_methods": ["merge"]
       }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": false,
+        "required_status_checks": [{ "context": "scorecard", "integration_id": 15368 }]
+      }
     }
   ]
 }

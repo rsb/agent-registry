@@ -5,5 +5,23 @@ rules  = ["rl-0001", "rl-0002", "rl-0003", "rl-0004", "rl-0005", "rl-0006", "rl-
 [variables]
 
 [files]
-"tools/rules/frozen-migrations.mjs"  = "owned"
-"tools/rules/tests/scripts.test.mjs" = "owned"
+# pr.yml has no paths filter on purpose. scorecard is the one required
+# check, and under the old filter #36, #38 and #40 merged with no verdict
+# at all; the history records them as no_run (run_id and verdict null).
+# A docs-only PR skips checks and tests through the changes job instead.
+# Do not reintroduce the filter for speed.
+".github/workflows/pr.yml"             = "owned"
+".github/workflows/deploy.yml"         = "owned"
+"tools/ci/changes.mjs"                 = "owned"
+"tools/ci/counts.mjs"                  = "owned"
+"tools/ci/report.mjs"                  = "owned"
+"tools/ci/run-stage.mjs"               = "owned"
+"tools/ci/scorecard.mjs"               = "owned"
+"tools/ci/verdict.mjs"                 = "owned"
+"tools/ci/tests/counts.test.mjs"       = "owned"
+"tools/ci/tests/report.test.mjs"       = "owned"
+"tools/ci/tests/scripts.test.mjs"      = "owned"
+"tools/ci/tests/verdict.test.mjs"      = "owned"
+"tools/rules/frozen-migrations.mjs"    = "owned"
+"tools/rules/tests/run.test.mjs"       = "owned"
+"tools/rules/tests/scripts.test.mjs"   = "owned"
