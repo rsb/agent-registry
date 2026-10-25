@@ -1,10 +1,11 @@
 // Checks rules.json against the repo, so the hand-render cannot drift:
 // ids are unique; each source pointer resolves to a numbered rule in
 // engineering/*.md that is not a "Moved to" stub; each check's ref
-// exists; each CI pointer names a job and step in its workflow; each
-// script rule is the script's own id; and AGENTS.md's rules region lists
-// every rule, in order. --root <repo> (default: cwd), --config <file>
-// (default: rules.json beside this file).
+// exists; each CI pointer names a step of the named job in its workflow,
+// by a run: line or a step name, never a comment; each script rule is
+// the script's own id; and AGENTS.md's rules region lists every rule, in
+// order. --root <repo> (default: cwd), --config <file> (default:
+// rules.json beside this file).
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -32,11 +33,53 @@ function sourceProblem(root, source) {
   return null;
 }
 
+// A plain YAML scalar, its quotes and any trailing comment off.
+function scalar(value) {
+  const q = /^(['"])(.*)\1$/.exec(value);
+  return q !== null ? q[2] : value.replace(/\s+#.*$/, '');
+}
+
+// The run: and name: values of one job's steps, a block scalar's lines
+// joined. Only a step's own keys count, never a comment or a with: input.
+// null if the file has no such job.
+function jobSteps(text, job) {
+  const lines = text.split('\n');
+  const start = lines.indexOf(`  ${job}:`);
+  if (start === -1) return null;
+  const steps = { run: [], name: [] };
+  let key = -1;
+  for (let i = start + 1; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (/^ {0,2}\S/.test(line)) break;
+    const item = /^(\s*)- /.exec(line);
+    if (item !== null) key = item[1].length + 2;
+    if (key === -1) continue;
+    const m = new RegExp(`^(?: {${key - 2}}- | {${key}})(run|name):\\s*(.*)$`).exec(line);
+    if (m === null) continue;
+    let value = m[2];
+    if (/^[>|][+-]?$/.test(value)) {
+      const body = [];
+      while (i + 1 < lines.length && (lines[i + 1].trim() === '' || lines[i + 1].search(/\S/) > key)) {
+        i += 1;
+        body.push(lines[i].trim());
+      }
+      value = body.join(value.startsWith('>') ? ' ' : '\n').trim();
+    } else value = scalar(value);
+    steps[m[1]].push(value);
+  }
+  return steps;
+}
+
+// A step is named by its command, which a run: value contains, or by its
+// name: in full.
 function ciProblem(root, ci) {
   const text = readText(join(root, ci.file));
   if (!text.ok) return text.error;
-  if (!new RegExp(`^  ${ci.job}:$`, 'm').test(text.value)) return `${ci.file} has no job ${ci.job}`;
-  if (!text.value.includes(ci.step)) return `${ci.file} has no step "${ci.step}"`;
+  const steps = jobSteps(text.value, ci.job);
+  if (steps === null) return `${ci.file} has no job ${ci.job}`;
+  if (!steps.run.some((r) => r.includes(ci.step)) && !steps.name.includes(ci.step)) {
+    return `${ci.file} job ${ci.job} has no step "${ci.step}"`;
+  }
   return null;
 }
 
