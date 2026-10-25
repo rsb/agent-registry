@@ -21,8 +21,10 @@ read it: they read what Gauge renders from it.
 - `standards/`: prose standards shared by the Rust apps.
 
 `rules/` and `profiles/` move together at one revision, so a rule and the
-profile that selects it land in one commit. A single PR changes one of the
-two trees, not both.
+profile that selects it land in one commit. A PR changes one of the two
+trees, or both when they change for one reason: #5 moved rl-0003's and
+rl-0005's CI pointers in `rules/` with the `pr.yml` they name in
+`profiles/`.
 
 A rule may serve one repo. A standard enters `standards/` only when a
 second app needs it; until then it lives in the app's own `engineering/`.
@@ -30,15 +32,23 @@ Naming is the one exception, because it is family-level by definition.
 
 ## How governance files are checked
 
+A managed file has one of five classes.
+
 - Owned: has a template in a layer's `files/`. `overlay-diff.sh`
   compares it with the repo byte for byte and by mode; in CI, rl-0009
   reports any change to it that has no recorded exception.
 - Pointer: compared byte for byte, like an owned file (`CLAUDE.md`).
   `overlay-diff.sh` and rl-0009 check it in the same way.
+- Merged: `AGENTS.md`. Only its `rsb:containment` region is compared;
+  the rest of the file is the repo's. `overlay-diff.sh` compares the
+  region with the template's, and in CI rl-0009 reports a change to it
+  that has no recorded exception.
 - Rendered: `tools/rules/rules.json` and the `rsb:rules` region of
   `AGENTS.md`. The render produces them, and no layer carries a copy, so
   `overlay-diff.sh` does not check them. In CI, rl-0009 reports changes
   to them like changes to an owned file.
+- Sample: a starting point the repo is free to change. `overlay-diff.sh`
+  reports a difference without failing, and rl-0009 does not check it.
 
 ## Standards
 
