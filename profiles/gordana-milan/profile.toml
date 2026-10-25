@@ -12,6 +12,10 @@ rules  = ["rl-0001", "rl-0002", "rl-0003", "rl-0004", "rl-0005", "rl-0006", "rl-
 # Do not reintroduce the filter for speed.
 ".github/workflows/pr.yml"             = "owned"
 ".github/workflows/deploy.yml"         = "owned"
+# Claude Code loads a nested AGENTS.md only through a CLAUDE.md pointer
+# beside it (D7, 2026-10-25), and only for reads.
+"product/CLAUDE.md"                    = "pointer"
+"decisions/CLAUDE.md"                  = "pointer"
 "tools/ci/changes.mjs"                 = "owned"
 "tools/ci/counts.mjs"                  = "owned"
 "tools/ci/report.mjs"                  = "owned"
