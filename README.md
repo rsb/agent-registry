@@ -9,10 +9,20 @@ read it: they read what Gauge renders from it.
 
 ## What lives here
 
-- `rules/`: one TOML file per rule, `rules/<id>.toml`. Ids are opaque
-  (`rl-NNNN`), assigned in creation order and never reused; a retired rule
-  stays. A rule that restates an app's own numbered rule points at it
-  (`source = { file, number }`) and never copies its text.
+- `rules/`: one TOML file per rule, `rules/<id>.toml`, in the v2 format
+  (`schemas/rule/v1`): a one-line `statement`, a `why`, a `scope` table
+  (`paths`, `exclude`), a `check_class` (`exact`, `approximate`,
+  `judgement`), a `consequence` (`business` or `coherence`, set by the
+  owner), a `lifecycle` table (`state`, `since`) and its `checks`. Ids
+  are opaque (`rl-NNNN`), assigned in creation order and never reused; a
+  retired rule stays. Rule text lives here for every profile node, repo
+  leaves included. The one exception is the pointer transition: a rule
+  that restates an app's numbered `engineering/` rule carries
+  `source = { file, number }` and a `why` that points at it, and
+  `source` retires when `gauge plan` renders and the text moves here.
+- `heuristics/`: one TOML file per heuristic, `heuristics/hr-NNNN.toml`
+  (`schemas/heuristic/v1`): a weighed default with permission to
+  deviate. Like a rule without a consequence. None yet.
 - `profiles/`: the layers repos are minted and reconciled from, chained
   `base › kind › variant › repo` (for example
   `base › service › cloudflare › gordana-milan`). Each layer has a
@@ -21,8 +31,13 @@ read it: they read what Gauge renders from it.
   governance files are checked") and a `files/` tree.
 - `standards/`: prose standards shared by the Rust apps.
 - `schemas/`: the formats that cross between the owner, the agent and
-  the custodian: spec and ticket frontmatter, the brief and the outbox.
-  JSON Schema, with fixtures and `check.py`. See `schemas/README.md`.
+  the custodian: spec and ticket frontmatter, the brief and the outbox;
+  and the rule and heuristic formats. JSON Schema, with fixtures and
+  `check.py`. `schemas/rule/v1` and `schemas/heuristic/v1` are copies
+  generated from Gauge's `rsb-gauge-schema`, which is the schema; regenerate
+  them with `gauge registry schema rule` and `gauge registry schema
+  heuristic` (commands in `schemas/README.md`). Check the registry with
+  `schemas/check.py registry` and `gauge registry lint .`.
 - `repos.toml`: every repository in the portfolio with its role
   (`factory`, `project`, `reference`, `record`), local path and status.
   It is the authority for the local layout and for which repos a loop
