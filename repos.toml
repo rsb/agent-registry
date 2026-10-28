@@ -1,0 +1,107 @@
+# Every repository in the portfolio and its role. This file is the
+# authority: the local layout mirrors it (~/code/software/rsb/<path>), and a
+# repo whose lockfile disagrees with its entry here is a finding.
+#
+# Roles are a closed list (research/rsb-workflow/decisions/
+# 2026-10-26-user-flows-and-boundaries.md and
+# 2026-10-26-registry-entities-releases-blueprints.md):
+#   factory    what the loop runs on; never hosts an agent attempt
+#   project    what the loop produces
+#   reference  a profile's reference app; governed, hosts attempts, first
+#              consumer of every registry release
+#   record     the record
+#
+# A loop may open only on a repo whose role is `project` or `reference` and
+# which carries .rsb/governance.lock on its default branch.
+#
+# Fields: name (GitHub repo under rsb/), role, path (local, relative to
+# ~/code/software/rsb), status (active, planned, archived). Projects and
+# references add kind (service, desktop, lib); a reference adds the profile
+# it proves.
+
+schema = 1
+
+[[repo]]
+name = "gauge"
+role = "factory"
+path = "factory/gauge"
+status = "active"
+
+[[repo]]
+name = "agent-box"
+role = "factory"
+path = "factory/agent-box"
+status = "active"
+
+[[repo]]
+name = "agent-host"
+role = "factory"
+path = "factory/agent-host"
+status = "active"
+
+[[repo]]
+name = "agent-registry"
+role = "factory"
+path = "factory/agent-registry"
+status = "active"
+
+[[repo]]
+name = "rsb-skills"
+role = "factory"
+path = "factory/rsb-skills"
+status = "active"
+
+[[repo]]
+name = "agent-driver"
+role = "factory"
+path = "factory/agent-driver"
+status = "archived" # folded into gauge as crates/agent-driver
+
+[[repo]]
+name = "research"
+role = "record"
+path = "research"
+status = "active"
+
+[[repo]]
+name = "gordana-milan"
+role = "project"
+kind = "service"
+path = "projects/services/gordana-milan"
+status = "active" # blocked from the loop until it can carry its tickets
+
+[[repo]]
+name = "rollout"
+role = "project"
+kind = "service"
+path = "projects/services/rollout"
+status = "planned"
+
+[[repo]]
+name = "lumen"
+role = "project"
+kind = "desktop"
+path = "projects/desktop/lumen"
+status = "active"
+
+[[repo]]
+name = "errors-rs"
+role = "project"
+kind = "lib"
+path = "projects/lib/errors-rs"
+status = "active"
+
+[[repo]]
+name = "libraw"
+role = "project"
+kind = "lib"
+path = "projects/lib/libraw"
+status = "active"
+
+[[repo]]
+name = "ref-rsb-serverless-stack"
+role = "reference"
+kind = "service"
+profile = "rsb-serverless-stack"
+path = "ref/ref-rsb-serverless-stack"
+status = "planned"
