@@ -20,6 +20,10 @@ read it: they read what Gauge renders from it.
   ownership class: owned, pointer, merged, rendered or sample; see "How
   governance files are checked") and a `files/` tree.
 - `standards/`: prose standards shared by the Rust apps.
+- `repos.toml`: every repository in the portfolio with its role
+  (`factory`, `project`, `reference`, `record`), local path and status.
+  It is the authority for the local layout and for which repos a loop
+  may open on.
 
 `rules/` and `profiles/` move together at one revision, so a rule and the
 profile that selects it land in one commit. A PR changes one of the two
@@ -86,18 +90,19 @@ RSB Workflow's own pieces are not suite apps:
 |---|---|---|
 | Gauge | the engine: registry, renders, sensing, the verdict, rule statistics; CLI `gauge` | `rsb/gauge` |
 | Insights | the owner's desktop view across the workflow and all projects; composes what the CLI offers, holds no domain logic | package in `rsb/gauge` |
-| `agent-driver` | the only binary that holds the GitHub App key; observes and acts on GitHub, runs the tick | `rsb/agent-driver`, moving into `rsb/gauge` as a package |
+| `agent-driver` | the only binary that holds the GitHub App key; observes and acts on GitHub, runs the tick | package in `rsb/gauge` (`crates/agent-driver`) |
 
 ## Naming
 
 - `rsb` is the organisation and the brand in every machine-facing name. It is
   always lowercase. `rsb.lab` appears only in prose about the photography and
   in About text.
-- Repositories are `rsb/<name>` on GitHub and
-  `~/code/software/rsb/<group>/<name>` locally, with the same `<name>`. The
-  groups are `desktop`, `services`, `lib` and `orchestration`; `research`
-  sits at the root. A group is for the owner; a repository declares its own
-  kind and variant, and no tool infers them from the group.
+- Repositories are `rsb/<name>` on GitHub and live locally under
+  `~/code/software/rsb/` at the path `repos.toml` gives them, with the
+  same `<name>`. The top level is one folder per role: `factory/`,
+  `projects/` (split by kind: `services/`, `desktop/`, `lib/`), `ref/` and
+  `research/`. A folder is for the owner; a repository declares its own
+  kind and profile, and no tool infers them from the folder.
 - Names come from vocabularies. Creative names from the art vocabulary
   (Lumen, Pigment, Pica, Spline, Datum) are reserved for the creative
   suite. A system with its own identity takes a proper name from another
@@ -112,8 +117,9 @@ RSB Workflow's own pieces are not suite apps:
   `lumen-cli`). A headless-first system's CLI is the bare name (`gauge`).
 - Crates inside one workspace are bare unless they are meant for use
   outside it; crates shared across apps carry the prefix `rsb-`
-  (`rsb-errors`, `rsb-libraw`). Gauge's crates are `rsb-gauge` and
-  `rsb-gauge-cli`.
+  (`rsb-errors`, `rsb-libraw`). Gauge's library crates are layered and
+  named `rsb-gauge-*` (`rsb-gauge-schema` first); its CLI crate is
+  `rsb-gauge-cli` (binary `gauge`).
 - Configuration lives in `~/.config/rsb/<app>/`, data in
   `~/.local/share/rsb/<app>/`. The monitor-to-ICC-profile map is shared by all
   apps at `~/.config/rsb/monitors.toml`.
@@ -129,12 +135,16 @@ RSB Workflow's own pieces are not suite apps:
 
 ## Repositories
 
+The full list, with roles and paths, is `repos.toml`. Notes on some:
+
 - `rsb/agent-registry`: this repository. Renamed from `rsb/rules` on
   2026-10-19.
-- `rsb/gauge`: RSB Workflow's engine monorepo (library, CLI `gauge`,
-  Insights, and in time `agent-driver`). Being renamed from `rsb/easel`.
-- `rsb/agent-driver`: the host-side gatekeeper that holds the GitHub App key
-  and does GitHub actions for agents. Moves into `rsb/gauge` as a package.
+- `rsb/gauge`: RSB Workflow's engine monorepo (the `rsb-gauge-*`
+  libraries, CLI `gauge`, `agent-driver`, Insights later). Renamed from
+  `rsb/easel`.
+- `rsb/agent-driver`: archived. Its key, token and GitHub client code
+  moved into `rsb/gauge`; its gatekeeper design (an agent asking it to act
+  mid-run) was replaced by the brief and outbox.
 - `rsb/agent-box`: the bubblewrap sandbox; the only place an agent runs.
 - `rsb/agent-host`: the at-desk sandbox configuration, kept in git.
 - `rsb/rsb-skills`: how the owner and agents work.
