@@ -1,0 +1,54 @@
+{
+  "schema": "outbox-kinds/v1",
+  "kinds": {
+    "pr-open": {
+      "class": "effect",
+      "note": "Open the PR from the loop branch. The body is performed byte for byte.",
+      "writes": "world",
+      "lookup": true,
+      "world_key": "PR by head branch",
+      "replay": "safe",
+      "supervision": "automatic"
+    },
+    "issue-comment": {
+      "class": "effect",
+      "note": "Comment on an issue. The custodian adds the marker; the agent never writes one.",
+      "writes": "world",
+      "lookup": true,
+      "world_key": "marker (loop, attempt, index) in the comment body",
+      "replay": "safe",
+      "supervision": "automatic"
+    },
+    "criteria-tick": {
+      "class": "effect",
+      "note": "Tick one criterion in the issue body.",
+      "writes": "world",
+      "lookup": true,
+      "world_key": "(issue, criterion text)",
+      "replay": "safe",
+      "supervision": "automatic"
+    },
+    "deviation": {
+      "class": "effect",
+      "note": "Recorded only. Nothing is written to GitHub.",
+      "writes": "store",
+      "lookup": true,
+      "world_key": "the effect record, (loop, attempt, index)",
+      "replay": "safe",
+      "supervision": "automatic"
+    },
+    "review-findings": {
+      "class": "reserved",
+      "note": "Reviewer only. Its lookup, replay and supervision are declared with the reviewer kind. Never in a coder's allowed_effects."
+    },
+    "flagged-for-human": {
+      "class": "declaration",
+      "note": "Effects are performed, then the loop parks agent_flagged with the text attached byte for byte."
+    },
+    "blocked": {
+      "class": "declaration",
+      "note": "Effects are performed, then the loop parks agent_blocked with the reason attached byte for byte.",
+      "replay": "safe"
+    }
+  }
+}

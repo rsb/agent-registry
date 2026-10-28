@@ -1,0 +1,9 @@
+{
+  "kind": "criteria-tick",
+  "target": {
+    "issue": 14
+  },
+  "payload": {
+    "issue": 14
+  }
+}

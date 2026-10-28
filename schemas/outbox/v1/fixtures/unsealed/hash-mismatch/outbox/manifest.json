@@ -1,0 +1,17 @@
+{
+  "schema": "outbox/v1",
+  "entries": [
+    {
+      "file": "01-criteria-tick.json",
+      "sha256": "88a45163afeebc57e8a0fa32a553c6270fef4c5e5537deffd7160d9035835cce"
+    },
+    {
+      "file": "02-issue-comment.json",
+      "sha256": "abf6fa22983137ded42c0a419140aa30b93e5ea3873e0580d6cccaf4570dc8ca"
+    },
+    {
+      "file": "03-pr-open.json",
+      "sha256": "d8a7d8948ef9c2b44cefa0be0dbf400b988102b77f4cf60f5035a567f5d34681"
+    }
+  ]
+}

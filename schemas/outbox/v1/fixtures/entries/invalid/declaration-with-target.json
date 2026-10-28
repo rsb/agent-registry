@@ -1,0 +1,9 @@
+{
+  "kind": "blocked",
+  "target": {
+    "issue": 14
+  },
+  "payload": {
+    "reason": "1. Which clock is the expiry measured on? Recommended: the server's, in UTC."
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "kind": "criteria-tick",
+  "target": {
+    "issue": 14
+  },
+  "payload": {
+    "issue": 14,
+    "criterion": "An invite older than eight days is refused at accept."
+  }
+}

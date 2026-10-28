@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "spec/v1/spec.schema.json",
+  "title": "Spec frontmatter v1",
+  "description": "The YAML frontmatter of specs/S-NNNN-<slug>/spec.md, validated as parsed YAML. That the slug matches the folder name, and that the id is the folder's, are checked by `spec apply`.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "slug",
+    "status",
+    "prd",
+    "serves"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^S-[0-9]{4}$"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "title": {
+      "description": "Optional. Without it, the index takes the title from the first heading.",
+      "$ref": "#/$defs/text"
+    },
+    "repo": {
+      "description": "The repo the spec lives in, by its name in repos.toml.",
+      "$ref": "#/$defs/text"
+    },
+    "target_repo": {
+      "description": "Where the spec's work is tried, when that is not `repo`.",
+      "$ref": "#/$defs/text"
+    },
+    "status": {
+      "description": "draft: written, not applied. applied: issues exist. done: every ticket closed. dropped: abandoned; the id is not reused.",
+      "enum": [
+        "draft",
+        "applied",
+        "done",
+        "dropped"
+      ]
+    },
+    "dropped_reason": {
+      "$ref": "#/$defs/text"
+    },
+    "milestone": {
+      "description": "The milestone the spec belongs to, for the rendered index.",
+      "$ref": "#/$defs/text"
+    },
+    "prd": {
+      "description": "The PRD the spec serves: its path in the repo, and optionally its name and draft.",
+      "$ref": "#/$defs/text"
+    },
+    "serves": {
+      "description": "The PRD sections this spec serves.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "description": "A YAML flow list splits at commas, so `rows 3, 4` yields the integer 4. Render the list by joining its items with ', '.",
+        "anyOf": [
+          {
+            "$ref": "#/$defs/text"
+          },
+          {
+            "type": "integer"
+          }
+        ]
+      }
+    },
+    "records": {
+      "description": "Decision records the spec rests on.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/text"
+      }
+    }
+  },
+  "if": {
+    "required": [
+      "status"
+    ],
+    "properties": {
+      "status": {
+        "const": "dropped"
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "dropped_reason"
+    ]
+  },
+  "else": {
+    "not": {
+      "required": [
+        "dropped_reason"
+      ]
+    }
+  },
+  "$defs": {
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    }
+  }
+}

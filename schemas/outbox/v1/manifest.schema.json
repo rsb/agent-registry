@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "outbox/v1/manifest.schema.json",
+  "title": "Outbox manifest v1",
+  "description": "outbox/manifest.json, written last. It seals the outbox: it lists every entry file with its sha256, in the order the entries are performed. Entry n is NN-<kind>.json with NN = n, from 01. A missing manifest, a hash that does not match, or a file in the outbox the manifest does not list, means no outbox.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "entries"],
+  "properties": {
+    "schema": { "const": "outbox/v1" },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 99,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["file", "sha256"],
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^[0-9]{2}-(pr-open|issue-comment|criteria-tick|deviation|review-findings|flagged-for-human|blocked)\\.json$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    }
+  }
+}

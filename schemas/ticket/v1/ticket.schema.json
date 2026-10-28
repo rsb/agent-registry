@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ticket/v1/ticket.schema.json",
+  "title": "Ticket frontmatter v1",
+  "description": "The YAML frontmatter of a ticket file, specs/S-NNNN-<slug>/NN-<slug>.md, validated as parsed YAML. Cross-file rules (the DAG is acyclic, every edge carries a contract on both ends, ids resolve) belong to `spec apply`, not to this schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "slice",
+    "depends_on",
+    "serves",
+    "contracts",
+    "seams"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "#/$defs/ticket_id"
+    },
+    "title": {
+      "$ref": "#/$defs/text"
+    },
+    "slice": {
+      "description": "`human` marks an owner step; its dependents wait on it.",
+      "enum": [
+        "groundwork",
+        "technical",
+        "feature",
+        "human"
+      ]
+    },
+    "status": {
+      "description": "Absent means live. Ticket state is observed on GitHub, so the file records only a drop.",
+      "enum": [
+        "dropped"
+      ]
+    },
+    "dropped_reason": {
+      "$ref": "#/$defs/text"
+    },
+    "depends_on": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/ticket_id"
+      }
+    },
+    "serves": {
+      "description": "The PRD sections, records and decisions this ticket serves.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "description": "A YAML flow list splits at commas, so `rows 3, 4` yields the integer 4. Render the list by joining its items with ', '.",
+        "anyOf": [
+          {
+            "$ref": "#/$defs/text"
+          },
+          {
+            "type": "integer"
+          }
+        ]
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relies_on",
+        "provides"
+      ],
+      "properties": {
+        "relies_on": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "shape"
+            ],
+            "properties": {
+              "from": {
+                "$ref": "#/$defs/endpoint"
+              },
+              "shape": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        },
+        "provides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "to",
+              "shape"
+            ],
+            "properties": {
+              "to": {
+                "$ref": "#/$defs/endpoint"
+              },
+              "shape": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        }
+      }
+    },
+    "seams": {
+      "description": "Where the work is tested. Each seam is a line, or `label: text`, which YAML parses as a one-key mapping. Empty for a `human` ticket.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/text"
+          },
+          {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 1,
+            "propertyNames": {
+              "$ref": "#/$defs/text"
+            },
+            "additionalProperties": {
+              "$ref": "#/$defs/text"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "if": {
+    "required": [
+      "status"
+    ],
+    "properties": {
+      "status": {
+        "const": "dropped"
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "dropped_reason"
+    ]
+  },
+  "else": {
+    "not": {
+      "required": [
+        "dropped_reason"
+      ]
+    }
+  },
+  "$defs": {
+    "ticket_id": {
+      "type": "string",
+      "pattern": "^S-[0-9]{4}/[1-9][0-9]*$"
+    },
+    "endpoint": {
+      "description": "A ticket id, or `external` for a contract produced or consumed outside this spec.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ticket_id"
+        },
+        {
+          "const": "external"
+        }
+      ]
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    }
+  }
+}

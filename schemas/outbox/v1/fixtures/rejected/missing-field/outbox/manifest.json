@@ -1,0 +1,9 @@
+{
+  "schema": "outbox/v1",
+  "entries": [
+    {
+      "file": "01-criteria-tick.json",
+      "sha256": "43dff433231f78073030bd22e0964a037643369787b47eb2d98677a8ed0e2f00"
+    }
+  ]
+}

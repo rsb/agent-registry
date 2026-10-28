@@ -1,0 +1,10 @@
+{
+  "kind": "issue-comment",
+  "target": {
+    "issue": 14
+  },
+  "payload": {
+    "issue": 14,
+    "body": "<!--rsb-effect 1/1/1-->"
+  }
+}

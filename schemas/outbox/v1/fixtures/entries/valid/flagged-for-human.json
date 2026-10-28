@@ -1,0 +1,7 @@
+{
+  "kind": "flagged-for-human",
+  "target": null,
+  "payload": {
+    "text": "The criterion on resend is ambiguous; implemented as written."
+  }
+}

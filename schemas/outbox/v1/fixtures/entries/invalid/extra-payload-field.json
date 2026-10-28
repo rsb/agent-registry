@@ -1,0 +1,8 @@
+{
+  "kind": "blocked",
+  "target": null,
+  "payload": {
+    "reason": "x",
+    "question": "y"
+  }
+}
