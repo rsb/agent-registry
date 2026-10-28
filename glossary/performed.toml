@@ -1,0 +1,14 @@
+[term]
+id = "performed"
+intent = "An effect the world carries, confirmed by looking it up, never by the write's response alone."
+kind = "concept"
+status = "active"
+see_also = ["effect", "refused", "unverified"]
+definition = """
+Per effect: look up by world key; if present, record `performed` and
+write nothing; if absent, write, look up again, then record. A
+custodian killed between the write and the record finds the effect on
+its next lookup, so nothing is written twice. Terminal.
+
+Source: decisions/2026-10-27-effects-and-unfinished-work.md, section 3.
+"""

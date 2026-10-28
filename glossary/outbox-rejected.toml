@@ -1,0 +1,14 @@
+[term]
+id = "outbox-rejected"
+aliases = ["outbox_rejected"]
+intent = "The park reason when a sealed outbox fails validation against its brief; attributed to the agent, with the payload and the brief attached."
+kind = "concept"
+status = "active"
+see_also = ["recorded", "sealed"]
+definition = """
+Validation is schema v1, every kind in the brief's `allowed_effects`,
+every target among the brief's targets, and commits on the loop branch
+only. A rejected outbox is rejected as a whole and creates no effects.
+
+Source: decisions/2026-10-27-effects-and-unfinished-work.md, sections 4 and 6.
+"""

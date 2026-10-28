@@ -1,0 +1,22 @@
+[term]
+id = "effect"
+intent = "An outbox entry that asks for a typed change, which only the custodian performs, once, by its natural key; a declaration is not an effect."
+kind = "concept"
+status = "active"
+see_also = ["intent", "sealed", "recorded", "performed", "refused", "superseded", "unverified", "declared-outcome"]
+definition = """
+An agent never acts on GitHub; it writes effects to its outbox, and the
+custodian (the owner with `handback apply` at desk, `agent-driver` in the
+loop) performs them in order. Store key `(loop, attempt, index)`; world
+key per kind, for example the PR's head branch.
+
+States: `pending` (intent), then one terminal state, `performed`,
+`refused`, `superseded` or `unverified`. A transient failure is not a
+state: it is `pending` with a try count and a time it is next due.
+
+Each kind declares `lookup`, `replay` and `supervision` in
+`schemas/outbox/v1/kinds.json`. `replay` is `safe` if and only if the
+kind has a lookup.
+
+Source: decisions/2026-10-27-effects-and-unfinished-work.md, sections 3 and 7.
+"""

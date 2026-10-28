@@ -1,0 +1,13 @@
+[term]
+id = "refused"
+intent = "An effect the world would not take, or whose transient retries ran out; the loop parks `effect_refused`."
+kind = "concept"
+status = "active"
+see_also = ["effect", "superseded", "effect-refused"]
+definition = """
+The response is attached. Every later effect in the same outbox becomes
+`superseded` in the same step: effects are ordered, and a refusal stops
+the rest. Terminal.
+
+Source: decisions/2026-10-27-effects-and-unfinished-work.md, section 3.
+"""
