@@ -6,8 +6,9 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema", "repo", "base_sha", "branch", "ticket_path", "spec", "issues",
-    "attempt", "kind", "outbox_path", "runtime_bound", "allowed_effects"
+    "schema", "repo", "base_sha", "base_branch", "branch", "ticket_path",
+    "spec", "issues", "attempt", "kind", "outbox_path", "runtime_bound",
+    "allowed_effects"
   ],
   "properties": {
     "schema": { "const": "brief/v1" },
@@ -19,6 +20,11 @@
     "base_sha": {
       "description": "The commit the loop branch starts from. The checked-out branch must contain it.",
       "$ref": "#/$defs/sha"
+    },
+    "base_branch": {
+      "description": "The branch the loop's PR merges into. A pr-open entry's base must equal it.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$"
     },
     "branch": {
       "description": "The loop branch. The agent commits here and never creates another.",

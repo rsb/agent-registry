@@ -37,8 +37,8 @@ rejected as a whole, and nothing is performed.
 - Every kind is in the brief's `allowed_effects`.
 - Every target is among the brief's targets: its issue numbers and its
   branch. The `issue` or `head` in the payload equals the target.
-- A `pr-open` body carries `Closes #n` for each of the brief's closes
-  issues.
+- A `pr-open` base equals the brief's `base_branch`, and its body
+  carries `Closes #n` for each of the brief's closes issues.
 - Commits are on the loop branch only. The custodian checks this in
   git.
 

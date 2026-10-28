@@ -2,6 +2,7 @@
   "schema": "brief/v1",
   "repo": "ref-rsb-serverless-stack",
   "base_sha": "3f2a9c1",
+  "base_branch": "main",
   "branch": "feat/14-invite-expiry",
   "ticket_path": "specs/S-0002-invites/02-invite-expiry.md",
   "spec": "S-0002",

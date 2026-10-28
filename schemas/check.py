@@ -160,6 +160,8 @@ def validate_against_brief(outbox, files, brief):
         if "pr" in target:
             errors.append(f"{where}: a brief v1 names no PR target")
         if kind == "pr-open":
+            if payload["base"] != brief["base_branch"]:
+                errors.append(f"{where}: base {payload['base']} not the brief's")
             for n in brief["issues"]["closes"]:
                 if not re.search(rf"\bCloses #{n}\b", payload["body"]):
                     errors.append(f"{where}: body lacks Closes #{n}")
