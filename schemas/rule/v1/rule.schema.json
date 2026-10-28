@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rule",
+  "description": "One engineering rule, as its TOML file states it.\n\nEnforcement is derived from [`Consequence`] and [`Lifecycle`], never\nstated: a trial rule only reports; an enforced business finding blocks;\nan enforced coherence finding accrues debt and never blocks. This crate\nholds no verdict logic.",
+  "type": "object",
+  "properties": {
+    "check_class": {
+      "description": "How the rule is held: exactly, approximately, or by a reviewer.",
+      "$ref": "#/$defs/CheckClass"
+    },
+    "checks": {
+      "description": "The checks that hold the rule. A trial or enforced rule has at least\none unless its class is judgement.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Check"
+      }
+    },
+    "consequence": {
+      "description": "What it costs when the rule does not hold. Set by the owner at\nregistration, revisable through the lifecycle.",
+      "$ref": "#/$defs/Consequence"
+    },
+    "contracts": {
+      "description": "Files whose types the code must satisfy, relative to the mount.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "exemplars": {
+      "description": "Real files that show the rule followed, never copies.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "id": {
+      "description": "`rl-NNNN`: opaque, never renumbered or reused. The file is\n`rules/<id>.toml`.",
+      "type": "string"
+    },
+    "lifecycle": {
+      "$ref": "#/$defs/Lifecycle"
+    },
+    "patterns": {
+      "description": "Names of the patterns this rule belongs to. Written by the lab.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "scope": {
+      "description": "Where the rule applies within the mount that selects it.",
+      "$ref": "#/$defs/Scope"
+    },
+    "source": {
+      "description": "The numbered rule in a repo's `engineering/` this rule restates.\nTransitional: retires when `gauge plan` renders and the rule text\nmoves into the registry.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Source"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "statement": {
+      "description": "One imperative, verifiable line.",
+      "type": "string"
+    },
+    "tags": {
+      "description": "Free descriptive strings. Never an enforcement input.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "why": {
+      "description": "The reason, as prose. Rendered for the agent on demand, not by default.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "statement",
+    "why",
+    "scope",
+    "check_class",
+    "consequence",
+    "lifecycle"
+  ],
+  "$defs": {
+    "Check": {
+      "description": "One thing that holds a rule or detects a deviation from a heuristic.",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/CheckKind"
+        },
+        "precision": {
+          "description": "For an approximate check, the measured precision as a fraction,\nonce the lab has one.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "ref": {
+          "description": "What the kind needs to find the check: a lint rule name, a file, a\nscript, or the text a reviewer is given.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "ref"
+      ]
+    },
+    "CheckClass": {
+      "description": "Exact fails on every breach and only on a breach. Approximate emits a\nsignal with known imprecision. Judgement is a reviewer grading against\nthe statement.",
+      "type": "string",
+      "enum": [
+        "exact",
+        "approximate",
+        "judgement"
+      ]
+    },
+    "CheckKind": {
+      "description": "The adapter a check runs through.",
+      "type": "string",
+      "enum": [
+        "eslint",
+        "clippy",
+        "ast-grep",
+        "dependency-cruiser",
+        "xtask",
+        "test",
+        "script",
+        "review"
+      ]
+    },
+    "Consequence": {
+      "description": "What a rule costs when it does not hold. Business: the user experiences\nit. Coherence: the system is less like itself.",
+      "type": "string",
+      "enum": [
+        "business",
+        "coherence"
+      ]
+    },
+    "Lifecycle": {
+      "description": "Draft is written, trial reports without consequence, enforced counts,\nretired is kept so old findings and suppressions still resolve.",
+      "type": "object",
+      "properties": {
+        "reason": {
+          "description": "Why the entry entered its current state. Required when retired.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "renamed_from": {
+          "description": "Earlier ids, so a stale suppression can be rewritten.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "replaced_by": {
+          "description": "When retired, the ids that took its place.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "since": {
+          "description": "The date, `YYYY-MM-DD`, the entry entered its current state.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "$ref": "#/$defs/State"
+        },
+        "until": {
+          "description": "When retired, the date suppressions stop resolving. Absent means\nkept indefinitely.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "state"
+      ]
+    },
+    "Scope": {
+      "description": "Where a rule or heuristic applies. Which repos and app types it applies\nto is decided by the profile nodes that select it, and the runtime by\nthe runtime leaf's platform; this narrows within a mount.",
+      "type": "object",
+      "properties": {
+        "exclude": {
+          "description": "Globs relative to the same mount, taken out of `paths`.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "paths": {
+          "description": "Globs relative to the mount of the node that selects the rule.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Source": {
+      "description": "A pointer into a repo's `engineering/`: the file, relative to the repo\nroot, and the rule's number in it.",
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "number": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "number"
+      ]
+    },
+    "State": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "trial",
+        "enforced",
+        "retired"
+      ]
+    }
+  }
+}

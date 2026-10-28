@@ -1,0 +1,10 @@
+id          = "hr-0002"
+statement   = "Prefer a table to a list when the items share fields."
+why         = "A table lets the reader compare across items."
+check_class = "judgement"
+
+[scope]
+paths = ["**/*.md"]
+
+[lifecycle]
+state = "draft"
