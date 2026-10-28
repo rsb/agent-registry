@@ -2,7 +2,7 @@ id          = "rl-0009"
 statement   = "Owned governance files change only with a recorded exception."
 why         = "Owned files are rendered by the profile; a local change is drift unless recorded."
 check_class = "exact"
-consequence = "business"
+consequence = "containment"
 
 [scope]
 paths   = [".githooks/**", ".github/rulesets/**", ".github/workflows/**", ".claude/settings.json", "tools/ci/**", "tools/rules/**", "AGENTS.md", "**/CLAUDE.md"]

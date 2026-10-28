@@ -12,14 +12,19 @@ read it: they read what Gauge renders from it.
 - `rules/`: one TOML file per rule, `rules/<id>.toml`, in the v2 format
   (`schemas/rule/v1`): a one-line `statement`, a `why`, a `scope` table
   (`paths`, `exclude`), a `check_class` (`exact`, `approximate`,
-  `judgement`), a `consequence` (`business` or `coherence`, set by the
-  owner), a `lifecycle` table (`state`, `since`) and its `checks`. Ids
+  `judgement`), a `consequence` (set by the owner), a `lifecycle` table
+  (`state`, `since`) and its `checks`. Ids
   are opaque (`rl-NNNN`), assigned in creation order and never reused; a
   retired rule stays. Rule text lives here for every profile node, repo
   leaves included. The one exception is the pointer transition: a rule
   that restates an app's numbered `engineering/` rule carries
   `source = { file, number }` and a `why` that points at it, and
   `source` retires when `gauge plan` renders and the text moves here.
+  The three consequence classes, for an enforced rule (a trial rule
+  only reports):
+  - `business`: blocks.
+  - `containment`: blocks and never becomes debt.
+  - `coherence`: never blocks; accrues debt.
 - `heuristics/`: one TOML file per heuristic, `heuristics/hr-NNNN.toml`
   (`schemas/heuristic/v1`): a weighed default with permission to
   deviate. Like a rule without a consequence. None yet.

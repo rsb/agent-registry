@@ -2,7 +2,7 @@ id          = "rl-0012"
 statement   = "No raw secrets in the repo."
 why         = "A pushed secret is published; rotation is the only fix."
 check_class = "exact"
-consequence = "business"
+consequence = "containment"
 
 [scope]
 paths   = ["**"]

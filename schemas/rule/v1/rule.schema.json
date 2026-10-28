@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Rule",
-  "description": "One engineering rule, as its TOML file states it.\n\nEnforcement is derived from [`Consequence`] and [`Lifecycle`], never\nstated: a trial rule only reports; an enforced business finding blocks;\nan enforced coherence finding accrues debt and never blocks. This crate\nholds no verdict logic.",
+  "description": "One engineering rule, as its TOML file states it.\n\nEnforcement is derived from [`Consequence`] and [`Lifecycle`], never\nstated: a trial rule only reports; an enforced business or containment\nfinding blocks; an enforced coherence finding accrues debt and never\nblocks. This crate holds no verdict logic.",
   "type": "object",
   "properties": {
     "check_class": {
@@ -144,11 +144,23 @@
       ]
     },
     "Consequence": {
-      "description": "What a rule costs when it does not hold. Business: the user experiences\nit. Coherence: the system is less like itself.",
-      "type": "string",
-      "enum": [
-        "business",
-        "coherence"
+      "description": "What a rule costs when it does not hold. A trial rule only reports,\nwhatever its class.",
+      "oneOf": [
+        {
+          "description": "A violation changes what a user experiences. Enforced findings block.",
+          "type": "string",
+          "const": "business"
+        },
+        {
+          "description": "A violation weakens the sandbox or the repo's security: governance\nfiles, CI permissions, secrets. Enforced findings block and never\nbecome debt.",
+          "type": "string",
+          "const": "containment"
+        },
+        {
+          "description": "A violation breaks architecture or a convention without changing\nbehaviour. Enforced findings never block; they accrue debt.",
+          "type": "string",
+          "const": "coherence"
+        }
       ]
     },
     "Lifecycle": {

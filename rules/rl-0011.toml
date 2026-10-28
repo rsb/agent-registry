@@ -2,7 +2,7 @@ id          = "rl-0011"
 statement   = "Workflows pin actions by commit SHA and declare permissions."
 why         = "A tag can be moved to new code; a SHA cannot. Permissions bound the token."
 check_class = "exact"
-consequence = "business"
+consequence = "containment"
 
 [scope]
 paths   = [".github/workflows/*.yml"]
