@@ -1,0 +1,10 @@
+{
+  "kind": "issue-comment",
+  "target": {
+    "issue": 14
+  },
+  "payload": {
+    "issue": 15,
+    "body": "Commits a1b2c3d and d4e5f6a. Review found nothing to fix."
+  }
+}

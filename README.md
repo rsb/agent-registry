@@ -20,6 +20,9 @@ read it: they read what Gauge renders from it.
   ownership class: owned, pointer, merged, rendered or sample; see "How
   governance files are checked") and a `files/` tree.
 - `standards/`: prose standards shared by the Rust apps.
+- `schemas/`: the formats that cross between the owner, the agent and
+  the custodian: spec and ticket frontmatter, the brief and the outbox.
+  JSON Schema, with fixtures and `check.py`. See `schemas/README.md`.
 - `repos.toml`: every repository in the portfolio with its role
   (`factory`, `project`, `reference`, `record`), local path and status.
   It is the authority for the local layout and for which repos a loop

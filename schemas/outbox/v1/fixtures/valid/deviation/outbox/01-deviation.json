@@ -1,0 +1,8 @@
+{
+  "kind": "deviation",
+  "target": null,
+  "payload": {
+    "text": "The expiry is read from config, not hard-coded.",
+    "departs_from": "S-0002/2: seven days, fixed"
+  }
+}

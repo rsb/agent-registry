@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "outbox/v1/entry.schema.json",
+  "title": "Outbox entry v1",
+  "description": "One outbox entry, outbox/NN-<kind>.json. A world-writing kind names its target twice, in `target` and in the payload; the two must agree, and the target must be among the brief's. Those checks, and the kind's place in the brief's allowed_effects, are made against the brief by the custodian.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "target", "payload"],
+  "properties": {
+    "kind": {
+      "enum": [
+        "pr-open", "issue-comment", "criteria-tick", "deviation",
+        "review-findings", "flagged-for-human", "blocked"
+      ]
+    },
+    "target": true,
+    "payload": true
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "pr-open" } } },
+      "then": {
+        "properties": {
+          "target": { "$ref": "#/$defs/branch_target" },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["title", "body", "head", "base"],
+            "properties": {
+              "title": { "$ref": "#/$defs/line" },
+              "body": {
+                "description": "Carries `Closes #n` for the brief's closes issues. Performed byte for byte.",
+                "$ref": "#/$defs/text"
+              },
+              "head": { "$ref": "#/$defs/branch" },
+              "base": { "$ref": "#/$defs/branch" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "issue-comment" } } },
+      "then": {
+        "properties": {
+          "target": { "$ref": "#/$defs/issue_target" },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["issue", "body"],
+            "properties": {
+              "issue": { "$ref": "#/$defs/issue" },
+              "body": {
+                "description": "The agent's text. The custodian adds the lookup marker; a body that already carries one is invalid.",
+                "allOf": [
+                  { "$ref": "#/$defs/text" },
+                  { "not": { "pattern": "<!--\\s*rsb-effect" } }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "criteria-tick" } } },
+      "then": {
+        "properties": {
+          "target": { "$ref": "#/$defs/issue_target" },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["issue", "criterion"],
+            "properties": {
+              "issue": { "$ref": "#/$defs/issue" },
+              "criterion": {
+                "description": "The criterion's text, verbatim as it stands in the issue body after `- [ ] `.",
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "deviation" } } },
+      "then": {
+        "properties": {
+          "target": { "const": null },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "departs_from"],
+            "properties": {
+              "text": { "$ref": "#/$defs/text" },
+              "departs_from": {
+                "description": "The rule id or the ticket line the work departs from.",
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "review-findings" } } },
+      "then": {
+        "properties": {
+          "target": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["pr"],
+            "properties": { "pr": { "$ref": "#/$defs/issue" } }
+          },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["pr", "findings"],
+            "properties": {
+              "pr": { "$ref": "#/$defs/issue" },
+              "findings": {
+                "description": "The reviewer's findings.json, as the cross-review record defines it.",
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "flagged-for-human" } } },
+      "then": {
+        "properties": {
+          "target": { "const": null },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text"],
+            "properties": { "text": { "$ref": "#/$defs/text" } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "blocked" } } },
+      "then": {
+        "properties": {
+          "target": { "const": null },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["reason"],
+            "properties": { "reason": { "$ref": "#/$defs/text" } }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "issue": { "type": "integer", "minimum": 1 },
+    "branch": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$"
+    },
+    "issue_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issue"],
+      "properties": { "issue": { "$ref": "#/$defs/issue" } }
+    },
+    "branch_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["branch"],
+      "properties": { "branch": { "$ref": "#/$defs/branch" } }
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "line": {
+      "type": "string",
+      "pattern": "^[^\\n]*\\S[^\\n]*$"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "kind": "pr-open",
+  "target": {
+    "branch": "feat/14-invite-expiry"
+  },
+  "payload": {
+    "title": "feat(invites): refuse expired invites at accept",
+    "body": "Invites older than seven days are refused at accept.\n\nCloses #14\n",
+    "head": "feat/14-invite-expiry",
+    "base": "main"
+  }
+}

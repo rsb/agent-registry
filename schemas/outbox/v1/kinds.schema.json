@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "outbox/v1/kinds.schema.json",
+  "title": "Outbox kinds table v1",
+  "description": "The per-kind declarations in kinds.json (effects record, section 7). An effect kind declares lookup, replay and supervision. `replay` is `safe` if and only if the kind has a lookup; a kind with no lookup must declare `resend`, `inspect` or `never`. A declaration writes nothing to the world and declares none of the three. A reserved kind is defined but carries no performance policy yet, so the custodian never performs it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "kinds"],
+  "properties": {
+    "schema": { "const": "outbox-kinds/v1" },
+    "kinds": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z]+(-[a-z]+)*$" },
+      "additionalProperties": { "$ref": "#/$defs/kind" }
+    }
+  },
+  "$defs": {
+    "kind": {
+      "type": "object",
+      "required": ["class", "note"],
+      "properties": {
+        "class": { "enum": ["effect", "declaration", "reserved"] },
+        "note": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "class": { "const": "effect" } } },
+          "then": {
+            "additionalProperties": false,
+            "required": ["writes", "lookup", "world_key", "replay", "supervision"],
+            "properties": {
+              "class": true,
+              "note": true,
+              "writes": {
+                "description": "`world`: GitHub. `store`: recorded only; the record is the effect, so finding it is the lookup.",
+                "enum": ["world", "store"]
+              },
+              "lookup": { "type": "boolean" },
+              "world_key": { "type": ["string", "null"] },
+              "replay": { "enum": ["safe", "resend", "inspect", "never"] },
+              "supervision": { "enum": ["automatic", "approval"] }
+            },
+            "if": { "properties": { "lookup": { "const": true } } },
+            "then": {
+              "properties": {
+                "replay": { "const": "safe" },
+                "world_key": { "type": "string", "minLength": 1 }
+              }
+            },
+            "else": {
+              "properties": {
+                "replay": { "enum": ["resend", "inspect", "never"] },
+                "world_key": { "const": null }
+              }
+            }
+          },
+          "else": {
+            "additionalProperties": false,
+            "properties": { "class": true, "note": true }
+          }
+        }
+      ]
+    }
+  }
+}

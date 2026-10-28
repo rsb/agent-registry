@@ -1,0 +1,9 @@
+{
+  "kind": "issue-close",
+  "target": {
+    "issue": 14
+  },
+  "payload": {
+    "issue": 14
+  }
+}

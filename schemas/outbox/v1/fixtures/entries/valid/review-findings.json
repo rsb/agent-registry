@@ -1,0 +1,13 @@
+{
+  "kind": "review-findings",
+  "target": {
+    "pr": 21
+  },
+  "payload": {
+    "pr": 21,
+    "findings": {
+      "ok": true,
+      "entries": []
+    }
+  }
+}

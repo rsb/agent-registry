@@ -1,0 +1,13 @@
+{
+  "schema": "outbox/v1",
+  "entries": [
+    {
+      "file": "01-issue-comment.json",
+      "sha256": "abf6fa22983137ded42c0a419140aa30b93e5ea3873e0580d6cccaf4570dc8ca"
+    },
+    {
+      "file": "02-review-findings.json",
+      "sha256": "2608dddff68c1b44f0e1232ac081b772b529a855ad297987d0f3ec4a908cf8dc"
+    }
+  ]
+}
