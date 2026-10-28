@@ -1,0 +1,25 @@
+[term]
+id = "heuristic"
+aliases = ["rule of thumb", "guidance", "default"]
+intent = "A default the author should apply while deciding, which can lose to a competing heuristic in context; it is weighed, not satisfied."
+kind = "registry-entity"
+status = "active"
+see_also = ["rule", "check", "pattern", "counter-case"]
+definition = """
+Guidance with a should, not a must. A heuristic has an id, a statement, a
+why, a scope, exemplars, and at least one counter-case: a recorded situation
+in which following it was the wrong call. A heuristic with no counter-case is
+a rule with a lazy check and is refiled.
+
+Heuristics may conflict with one another by design. The render says which to
+weigh for the paths in scope, never which must hold.
+
+A heuristic's checks are never expected to become mechanical, so heuristics
+are excluded from the G2 trend (share of rules with a mechanical check) and
+measured by their own indicator: the share of heuristic findings that led to
+a change the owner kept. A heuristic finding is a prompt to look, never a
+gate.
+
+Dictionary sense kept: from Greek heuriskein, to find. A method of discovery
+or a rule of thumb, good enough to reach a goal, not guaranteed correct.
+"""

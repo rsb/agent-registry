@@ -1,0 +1,30 @@
+[term]
+id = "pattern"
+aliases = ["cluster", "named cluster"]
+intent = "The owner-given name for a cluster of rules and heuristics that recur together and resolve one tension; it teaches, while its members check."
+kind = "registry-entity"
+status = "active"
+see_also = ["rule", "heuristic", "forces", "anti-pattern", "glossary"]
+definition = """
+A pattern is a name, the tension it resolves (its forces), a membership list
+of rule and heuristic ids, and relations to other patterns. Members are
+typed, so the render can say which parts of the shape are invariant and
+which are the taste the agent is meant to acquire.
+
+Membership is many-to-many; patterns form a graph, not a layer above rules.
+
+Clusters are mined bottom-up from co-occurring findings and co-changed
+members. The lab proposes clusters; only the owner names them; the rule of
+three applies before a cluster earns a name.
+
+Lifecycle: candidate, named, active, deprecated (name kept with
+superseded_by so old findings stay interpretable), merged (alias kept).
+
+When one member's rate rises, the feedback is that member with an exemplar.
+When several members' rates rise together, the feedback is the pattern's
+statement and why, loaded for the paths it covers.
+
+A defined pattern name is a macro in prompts: "keep this headless" expands,
+at the pinned registry revision, to the members of the pattern named
+headless.
+"""

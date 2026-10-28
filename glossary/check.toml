@@ -1,0 +1,26 @@
+[term]
+id = "check"
+aliases = ["sensor", "checker"]
+intent = "The executable attached to one rule or heuristic that examines a change and emits findings citing its id; its class says how far to trust it."
+kind = "registry-entity"
+status = "active"
+see_also = ["rule", "heuristic", "check-class", "finding", "adapter"]
+definition = """
+A check holds exactly one rule or heuristic and has exactly one class:
+mechanical (exact and binary; fails the build), approximate (a signal with
+known and measured imprecision), or judgement (a review agent evaluated
+against the statement under the coverage-attestation contract). The class is
+a property of the check, not of what it holds.
+
+A rule or heuristic may carry several checks. This is how a rule migrates
+from judgement to mechanical without a flag day: the new check is added
+beside the old one, proven in the lab, and the old one retired. For G2 the
+rule's effective class is the strongest of its checks. The scorecard counts
+by rule or heuristic id, not by check, so multi-check entries do not double
+count.
+
+A check runs through an adapter per toolchain. The registry records which
+adapter and which configured tool rule implements the check, so an ecosystem
+tool's rule (a dependency-cruiser rule, a clippy lint, an ast-grep pattern)
+is a check with provenance, not a parallel system.
+"""
