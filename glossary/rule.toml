@@ -1,0 +1,25 @@
+[term]
+id = "rule"
+aliases = ["constraint", "invariant", "engineering rule"]
+intent = "A statement about the code that must hold, identified by an opaque id, that a finding cites and a scorecard counts."
+kind = "registry-entity"
+status = "active"
+see_also = ["heuristic", "check", "check-class", "pattern", "finding", "exception"]
+definition = """
+The unit of governance. A rule has an id (opaque, never reused), a statement,
+a why, a scope (level in the tree, toolchain, target, paths), a severity, a
+contract, and exemplars. Rules do not conflict with one another: a change
+satisfies a rule or it does not.
+
+Every enforced rule carries at least one check, and its checks are expected
+to climb toward mechanical; a rule whose only check is judgement-class is the
+enumerated residual, not a resting state. There is no prose-only tier: a
+practice that must hold but cannot yet be checked is a rule with a judgement
+check, not a note.
+
+A rule never carries a counter-case. If following the statement is ever the
+right call to break, it is a heuristic.
+
+Retired is not deleted: a retired rule keeps its id so old findings stay
+interpretable.
+"""

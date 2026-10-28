@@ -1,0 +1,18 @@
+[term]
+id = "recorded"
+intent = "An outbox the custodian has validated against the exact brief and written to the store as one event, valid or rejected, before any effect is performed."
+kind = "concept"
+status = "active"
+see_also = ["sealed", "intent", "outbox-rejected"]
+definition = """
+Recording is the step between sealed and performed. A valid outbox
+creates its effects `pending`; an invalid one is recorded `rejected`
+with its payload and creates no effects. The brief is recorded too,
+before the attempt starts, so a rejected outbox can be judged against
+what the agent was told.
+
+While a loop has a sealed outbox not yet recorded, or a recorded one
+with pending effects, no row below the consume rows may fire.
+
+Source: decisions/2026-10-27-effects-and-unfinished-work.md, section 4.
+"""

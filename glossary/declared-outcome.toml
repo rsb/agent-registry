@@ -1,0 +1,16 @@
+[term]
+id = "declared-outcome"
+aliases = ["declaration"]
+intent = "An outbox entry, `flagged-for-human` or `blocked`, by which the agent says the work is unfinished; it writes nothing to the world and parks the loop."
+kind = "concept"
+status = "active"
+see_also = ["effect", "agent-flagged", "agent-blocked"]
+definition = """
+A declaration may sit beside effects in one outbox. The effects are
+performed in order, then the loop parks `agent_flagged` or
+`agent_blocked`, and the park notice carries the agent's text byte for
+byte. Where an agent at desk would stop and ask, it declares instead,
+with the numbered question and its recommended answer.
+
+Source: decisions/2026-10-27-effects-and-unfinished-work.md, section 5.
+"""

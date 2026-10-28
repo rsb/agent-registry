@@ -1,0 +1,13 @@
+[term]
+id = "superseded"
+intent = "An effect never performed because an earlier effect in the same outbox was refused."
+kind = "concept"
+status = "active"
+see_also = ["refused", "effect"]
+definition = """
+Ordered and stop: a refusal supersedes every later entry, even one that
+did not depend on it. Accepted for M1 with that cost, and watched.
+Terminal.
+
+Source: decisions/2026-10-27-effects-and-unfinished-work.md, section 3 and Watch.
+"""
