@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Heuristic",
+  "description": "One heuristic: a default with permission to deviate. It renders as\n\"prefer X; when the situation calls for otherwise, do otherwise and say\nwhy in the hand-back\". Not following it is a deviation, not a finding,\nso it has no consequence class; a statement whose breach could reach\nthe user or the box is a rule.",
+  "type": "object",
+  "properties": {
+    "check_class": {
+      "description": "How a deviation is detected: exactly, approximately, or by a reviewer.",
+      "$ref": "#/$defs/CheckClass"
+    },
+    "checks": {
+      "description": "The checks that detect a deviation.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Check"
+      }
+    },
+    "exemplars": {
+      "description": "Real files that show the default followed, never copies.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "id": {
+      "description": "`hr-NNNN`: opaque, never renumbered or reused. The file is\n`heuristics/<id>.toml`.",
+      "type": "string"
+    },
+    "lifecycle": {
+      "$ref": "#/$defs/Lifecycle"
+    },
+    "patterns": {
+      "description": "Names of the patterns this heuristic belongs to. Written by the lab.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "scope": {
+      "description": "Where the heuristic applies within the mount that selects it.",
+      "$ref": "#/$defs/Scope"
+    },
+    "statement": {
+      "description": "The default, as one line: what to prefer.",
+      "type": "string"
+    },
+    "tags": {
+      "description": "Free descriptive strings. Never an enforcement input.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "why": {
+      "description": "The reason, as prose.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "statement",
+    "why",
+    "check_class",
+    "lifecycle",
+    "scope"
+  ],
+  "$defs": {
+    "Check": {
+      "description": "One thing that holds a rule or detects a deviation from a heuristic.",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/CheckKind"
+        },
+        "precision": {
+          "description": "For an approximate check, the measured precision as a fraction,\nonce the lab has one.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "ref": {
+          "description": "What the kind needs to find the check: a lint rule name, a file, a\nscript, or the text a reviewer is given.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "ref"
+      ]
+    },
+    "CheckClass": {
+      "description": "Exact fails on every breach and only on a breach. Approximate emits a\nsignal with known imprecision. Judgement is a reviewer grading against\nthe statement.",
+      "type": "string",
+      "enum": [
+        "exact",
+        "approximate",
+        "judgement"
+      ]
+    },
+    "CheckKind": {
+      "description": "The adapter a check runs through.",
+      "type": "string",
+      "enum": [
+        "eslint",
+        "clippy",
+        "ast-grep",
+        "dependency-cruiser",
+        "xtask",
+        "test",
+        "script",
+        "review"
+      ]
+    },
+    "Lifecycle": {
+      "description": "Draft is written, trial reports without consequence, enforced counts,\nretired is kept so old findings and suppressions still resolve.",
+      "type": "object",
+      "properties": {
+        "reason": {
+          "description": "Why the entry entered its current state. Required when retired.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "renamed_from": {
+          "description": "Earlier ids, so a stale suppression can be rewritten.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "replaced_by": {
+          "description": "When retired, the ids that took its place.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "since": {
+          "description": "The date, `YYYY-MM-DD`, the entry entered its current state.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "$ref": "#/$defs/State"
+        },
+        "until": {
+          "description": "When retired, the date suppressions stop resolving. Absent means\nkept indefinitely.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "state"
+      ]
+    },
+    "Scope": {
+      "description": "Where a rule or heuristic applies. Which repos and app types it applies\nto is decided by the profile nodes that select it, and the runtime by\nthe runtime leaf's platform; this narrows within a mount.",
+      "type": "object",
+      "properties": {
+        "exclude": {
+          "description": "Globs relative to the same mount, taken out of `paths`.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "paths": {
+          "description": "Globs relative to the mount of the node that selects the rule.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "State": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "trial",
+        "enforced",
+        "retired"
+      ]
+    }
+  }
+}

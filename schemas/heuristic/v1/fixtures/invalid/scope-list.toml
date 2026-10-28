@@ -1,0 +1,13 @@
+id          = "hr-0001"
+statement   = "Prefer one operation per file."
+why         = "A reader finds an operation by its name."
+check_class = "approximate"
+scope       = ["src/operations/**"]
+
+[lifecycle]
+state = "trial"
+since = "2026-10-28"
+
+[[checks]]
+kind = "script"
+ref  = "tools/rules/one-operation.mjs"

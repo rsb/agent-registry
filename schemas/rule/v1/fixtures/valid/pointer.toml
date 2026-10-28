@@ -1,0 +1,17 @@
+id          = "rl-0044"
+statement   = "Engineering rule migrations/9: a migration on main is never changed, renamed or deleted."
+why         = "Stated in engineering/migrations.md rule 9."
+check_class = "exact"
+consequence = "business"
+source      = { file = "engineering/migrations.md", number = 9 }
+
+[scope]
+paths = ["packages/db/migrations/**"]
+
+[lifecycle]
+state = "trial"
+since = "2026-10-24"
+
+[[checks]]
+kind = "script"
+ref  = "tools/rules/frozen-migrations.mjs"

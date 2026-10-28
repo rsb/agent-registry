@@ -5,14 +5,17 @@
     check.py spec <dir>        a spec folder: spec.md and NN-*.md frontmatter
     check.py brief <file>      a brief
     check.py outbox <run-dir>  run-dir/brief.json and run-dir/outbox/
+    check.py registry [root]   root/rules/*.toml and root/heuristics/*.toml
+                               (root defaults to this repository)
 
-Needs Python 3 with jsonschema and PyYAML. Exit 0 when everything holds.
+Needs Python 3.11 or later (tomllib) with jsonschema and PyYAML. Exit 0 when everything holds.
 """
 
 import hashlib
 import json
 import re
 import sys
+import tomllib
 from pathlib import Path
 
 import yaml
@@ -33,6 +36,8 @@ BRIEF = validator("brief", "brief.schema.json")
 ENTRY = validator("outbox", "entry.schema.json")
 MANIFEST = validator("outbox", "manifest.schema.json")
 KINDS_SCHEMA = validator("outbox", "kinds.schema.json")
+RULE = validator("rule", "rule.schema.json")
+HEURISTIC = validator("heuristic", "heuristic.schema.json")
 KINDS = json.loads((ROOT / "outbox" / "v1" / "kinds.json").read_text())
 
 # Strings that look like a credential. A brief holds none of any kind.
@@ -63,6 +68,26 @@ def frontmatter(path):
 def check_markdown(v, path):
     data, errors = frontmatter(path)
     return errors or schema_errors(v, data, path)
+
+
+def check_toml(v, path):
+    try:
+        data = tomllib.loads(Path(path).read_text())
+    except (OSError, tomllib.TOMLDecodeError) as e:
+        return [f"{path}: {e}"]
+    return schema_errors(v, data, path)
+
+
+def check_registry(root):
+    """Every rule and heuristic file under root. heuristics/ may be absent."""
+    root = Path(root)
+    if not (root / "rules").is_dir():
+        return [f"{root}: no rules/ directory"]
+    errors = []
+    for v, folder in [(RULE, "rules"), (HEURISTIC, "heuristics")]:
+        for path in sorted((root / folder).glob("*.toml")):
+            errors += check_toml(v, path)
+    return errors
 
 
 def check_spec(folder):
@@ -215,6 +240,10 @@ def run_fixtures():
         for outcome in ["valid", "invalid"]:
             for path in sorted((ROOT / name / "v1" / "fixtures" / outcome).glob("*.md")):
                 expect(path, check_markdown(v, path), outcome == "valid")
+    for name, v in [("rule", RULE), ("heuristic", HEURISTIC)]:
+        for outcome in ["valid", "invalid"]:
+            for path in sorted((ROOT / name / "v1" / "fixtures" / outcome).glob("*.toml")):
+                expect(path, check_toml(v, path), outcome == "valid")
     for path in sorted((ROOT / "spec" / "v1" / "fixtures" / "folders").iterdir()):
         expect(path, check_spec(path), True)
     for outcome in ["valid", "invalid"]:
@@ -245,6 +274,10 @@ def main(argv):
         return 0 if run_fixtures() else 1
     if len(argv) == 3 and argv[1] in ("spec", "brief"):
         errors = (check_spec if argv[1] == "spec" else check_brief)(argv[2])
+        print("\n".join(errors) if errors else "valid")
+        return 1 if errors else 0
+    if len(argv) in (2, 3) and argv[1] == "registry":
+        errors = check_registry(argv[2] if len(argv) == 3 else ROOT.parent)
         print("\n".join(errors) if errors else "valid")
         return 1 if errors else 0
     if len(argv) == 3 and argv[1] == "outbox":

@@ -1,0 +1,14 @@
+id          = "rl-0045"
+statement   = "A handler names the operation it calls."
+why         = "A reader finds the operation from the route."
+check_class = "judgement"
+consequence = "coherence"
+
+[scope]
+
+[lifecycle]
+state       = "retired"
+since       = "2026-10-28"
+until       = "2027-01-28"
+replaced_by = ["rl-0046"]
+reason      = "Split into a rule per layer."

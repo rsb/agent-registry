@@ -1,8 +1,9 @@
 # Schemas
 
-The formats that cross between the owner, the agent and the custodian.
-One schema language for all of them: JSON Schema 2020-12. Spec and
-ticket frontmatter is checked as parsed YAML.
+The formats that cross between the owner, the agent and the custodian,
+and the registry's own entries. One schema language for all of them:
+JSON Schema 2020-12. Spec and ticket frontmatter is checked as parsed
+YAML, rule and heuristic files as parsed TOML.
 
 | Schema | Describes | Written by | Read by |
 |---|---|---|---|
@@ -10,6 +11,8 @@ ticket frontmatter is checked as parsed YAML.
 | `ticket/v1` | the frontmatter of `specs/S-NNNN-<slug>/NN-<slug>.md` | `to-tickets`, the owner | `spec apply`, `implement` |
 | `brief/v1` | `run/brief.json`, one attempt's task and limits | the custodian | the agent |
 | `outbox/v1` | `run/outbox/`, the agent's intended effects | the agent | the custodian |
+| `rule/v1` | `rules/rl-NNNN.toml`, one rule | the owner | Gauge |
+| `heuristic/v1` | `heuristics/hr-NNNN.toml`, one heuristic | the owner | Gauge |
 
 The custodian is the owner at desk (`brief new`, `handback apply`) and
 `agent-driver` in the loop. Both read the same files. See
@@ -41,15 +44,40 @@ The schema checks one file. These rules span files and belong to
 graph of `depends_on` is acyclic, and every edge carries a contract on
 both ends.
 
+## Rule and heuristic
+
+`rule/v1` and `heuristic/v1` are copies. Gauge's `rsb-gauge-schema`
+crate (`crates/rsb-gauge-schema/src/rule.rs`) is the schema: its types
+read the files and derive these JSON Schemas. Never edit the copies;
+regenerate them from a gauge checkout beside this one:
+
+```sh
+cargo run -q --manifest-path ../gauge/Cargo.toml -p rsb-gauge-cli -- registry schema rule \
+  > schemas/rule/v1/rule.schema.json
+cargo run -q --manifest-path ../gauge/Cargo.toml -p rsb-gauge-cli -- registry schema heuristic \
+  > schemas/heuristic/v1/heuristic.schema.json
+```
+
+The schema checks one file. Gauge's load and lint check the rest: the
+file is named for its id, statements are unique, a trial or enforced
+entry has a check unless it is judgement, an entry past draft has
+`lifecycle.since`.
+
+```sh
+cargo run -q --manifest-path ../gauge/Cargo.toml -p rsb-gauge-cli -- registry lint .
+```
+
 ## Checking
 
-`check.py` needs Python 3 with `jsonschema` and `PyYAML`.
+`check.py` needs Python 3.11 or later (for `tomllib`) with `jsonschema`
+and `PyYAML`.
 
 ```sh
 schemas/check.py fixtures                 # every fixture passes or fails as named
 schemas/check.py spec ../gauge/specs/S-0001-thin-loop
 schemas/check.py brief run/brief.json
 schemas/check.py outbox run/              # run/brief.json and run/outbox/
+schemas/check.py registry                 # rules/*.toml and heuristics/*.toml here
 ```
 
 `check.py outbox` is the reference for the seal check and the checks
@@ -58,7 +86,8 @@ against the brief, which a schema cannot express. It prints `valid`,
 
 ## Fixtures
 
-Each schema keeps fixtures under `v1/fixtures/`. The directory a
+Each schema keeps fixtures under `v1/fixtures/`, as `.md`, `.json` or
+`.toml` by what the schema describes. The directory a
 fixture sits in is its expected outcome: `valid` or `invalid`, and for
 whole outboxes `valid`, `unsealed` or `rejected`.
 

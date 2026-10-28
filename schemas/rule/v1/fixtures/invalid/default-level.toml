@@ -1,0 +1,18 @@
+id          = "rl-0042"
+statement   = "No raw secrets in the repo."
+why         = "A pushed secret is published; rotation is the only fix."
+check_class = "exact"
+consequence = "business"
+default_level = "block"
+exemplars   = ["tools/rules/secret-scan.mjs"]
+
+[scope]
+paths = ["**"]
+
+[lifecycle]
+state = "enforced"
+since = "2026-10-28"
+
+[[checks]]
+kind = "script"
+ref  = "tools/rules/secret-scan.mjs"

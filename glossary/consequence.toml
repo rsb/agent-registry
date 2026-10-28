@@ -1,0 +1,25 @@
+[term]
+id = "consequence"
+aliases = ["consequence class"]
+intent = "What a rule costs when it does not hold, set by the owner: business and containment findings block when enforced, coherence findings accrue debt and never block."
+kind = "concept"
+status = "active"
+see_also = ["rule", "heuristic", "finding"]
+definition = """
+Every rule has exactly one consequence class, set by the owner at
+registration and revisable through the lifecycle. Enforcement is derived
+from the class and the lifecycle state, never stated on the rule. A trial
+rule only reports, whatever its class.
+
+- business: a violation changes what a user experiences. An enforced
+  finding blocks.
+- containment: a violation weakens the sandbox or the repo's security:
+  governance files, CI permissions, secrets. An enforced finding blocks
+  and never becomes debt.
+- coherence: a violation breaks architecture or a convention without
+  changing behaviour. An enforced finding never blocks; it accrues debt.
+
+A heuristic has no consequence: not following it is a deviation, not a
+finding. A statement whose breach could reach the user or the box is a
+rule.
+"""

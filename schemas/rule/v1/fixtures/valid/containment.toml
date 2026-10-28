@@ -1,0 +1,16 @@
+id          = "rl-0043"
+statement   = "Workflows pin actions by commit SHA and declare permissions."
+why         = "A moved tag runs foreign code with the repo's token."
+check_class = "exact"
+consequence = "containment"
+
+[scope]
+paths = [".github/workflows/**"]
+
+[lifecycle]
+state = "enforced"
+since = "2026-10-28"
+
+[[checks]]
+kind = "script"
+ref  = "tools/rules/workflow-pins.mjs"

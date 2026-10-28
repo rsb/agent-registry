@@ -1,0 +1,21 @@
+id          = "rl-0043"
+statement   = "Return a `Result<T, E>`. Never throw or reject."
+why         = "A thrown error escapes the type system and the log line."
+check_class = "approximate"
+consequence = "coherence"
+contracts   = ["packages/core/result/src/result.ts"]
+patterns    = ["errors-as-values"]
+tags        = ["errors"]
+
+[scope]
+paths   = ["src/**"]
+exclude = ["src/generated/**"]
+
+[lifecycle]
+state = "trial"
+since = "2026-10-28"
+
+[[checks]]
+kind      = "ast-grep"
+ref       = "rules/no-throw.yml"
+precision = 0.9

@@ -1,13 +1,16 @@
-id            = "rl-0009"
-title         = "Owned governance files change only with a recorded exception"
-statement     = "Owned governance files change only with a recorded exception."
-why           = "Owned files are rendered by the profile; a local change is drift unless recorded."
-scope         = [".githooks/**", ".github/rulesets/**", ".github/workflows/**", ".claude/settings.json", "tools/ci/**", "tools/rules/**", "AGENTS.md", "**/CLAUDE.md"]
-check_class   = "mechanical"
-default_level = "block"
-lifecycle     = "trial"
+id          = "rl-0009"
+statement   = "Owned governance files change only with a recorded exception."
+why         = "Owned files are rendered by the profile; a local change is drift unless recorded."
+check_class = "exact"
+consequence = "containment"
+
+[scope]
+paths   = [".githooks/**", ".github/rulesets/**", ".github/workflows/**", ".claude/settings.json", "tools/ci/**", "tools/rules/**", "AGENTS.md", "**/CLAUDE.md"]
+
+[lifecycle]
+state = "trial"
+since = "2026-10-24"
 
 [[checks]]
 kind = "script"
 ref  = "tools/rules/owned-files.mjs"
-ci   = { file = ".github/workflows/pr.yml", job = "rules", step = "node tools/rules/run.mjs --ci" }

@@ -37,6 +37,6 @@ alone; put nuance in `definition`.
   (a recorded situation in which following it was the wrong call); a rule
   file is invalid with one. A heuristic that cannot name its counter-case is
   refiled as a rule with a judgement-class check.
-- Check classes are `mechanical`, `approximate`, `judgement`. The class is a
+- Check classes are `exact`, `approximate`, `judgement`. The class is a
   property of the check, not of the rule or heuristic it holds. The former
   class name `heuristic` is retired to avoid collision with the entity.
