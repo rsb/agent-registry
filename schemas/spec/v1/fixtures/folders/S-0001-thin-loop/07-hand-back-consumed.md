@@ -61,7 +61,7 @@ ambiguous (effects record §1).
   present record `performed` and write nothing; else write, look up
   again, record. Transient responses are `pending` with tries and
   `due_at` (values provisional config, Q13; validated on the reference
-  app, never on gordana-milan). A non-transient refusal, or tries
+  app, never on daybook). A non-transient refusal, or tries
   exhausted, is `refused` with the response, and every later entry is
   `superseded` in the same step (ordered and stop).
 - **Kinds at M1:** `pr-open` (title and body as written, never edited
@@ -77,7 +77,7 @@ ambiguous (effects record §1).
 - The `attempting` event and `unverified` state exist in the schema and
   the code paths are table-tested; no M1 kind emits them.
 - Retiring the owner-run `handback apply` copy: once this ticket passes
-  on the reference repo, the hand script stays only for gordana-milan's
+  on the reference repo, the hand script stays only for daybook's
   by-hand path.
 
 ## Out of scope

@@ -64,10 +64,10 @@ path = "research"
 status = "active"
 
 [[repo]]
-name = "gordana-milan"
+name = "daybook"
 role = "project"
 kind = "service"
-path = "projects/services/gordana-milan"
+path = "projects/services/daybook"
 status = "active" # blocked from the loop until it can carry its tickets
 
 [[repo]]

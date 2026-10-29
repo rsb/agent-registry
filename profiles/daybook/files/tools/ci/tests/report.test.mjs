@@ -133,7 +133,7 @@ describe('renderComment', () => {
 describe('historyRow', () => {
   const input = {
     runId: 42,
-    repo: 'rsb/gordana-milan',
+    repo: 'rsb/daybook',
     sha: 'abc',
     pr: 7,
     verdict: 'GREEN',
@@ -150,7 +150,7 @@ describe('historyRow', () => {
   test('the fourteen fields', () => {
     assert.deepEqual(historyRow(input), {
       run_id: 42,
-      repo: 'rsb/gordana-milan',
+      repo: 'rsb/daybook',
       sha: 'abc',
       pr: 7,
       verdict: 'GREEN',

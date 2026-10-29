@@ -30,7 +30,7 @@ read it: they read what Gauge renders from it.
   deviate. Like a rule without a consequence. None yet.
 - `profiles/`: the layers repos are minted and reconciled from, chained
   `base › kind › variant › repo` (for example
-  `base › service › cloudflare › gordana-milan`). Each layer has a
+  `base › service › cloudflare › daybook`). Each layer has a
   `profile.toml` (parent, the rules it selects, its files and their
   ownership class: owned, pointer, merged, rendered or sample; see "How
   governance files are checked") and a `files/` tree.

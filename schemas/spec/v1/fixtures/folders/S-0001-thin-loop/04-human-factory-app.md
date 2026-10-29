@@ -35,7 +35,7 @@ seams: []
   reaches every installed repo, whatever the per-tick token scope), so
   a repo is added when it joins the loop, not before. As of 2026-10-27
   the installation holds `libraw`, `lumen`, `errors-rs`
-  (`gm-serverless` removed by the owner). gordana-milan is added in the
+  (one private repo removed by the owner). daybook is added in the
   same change that moves it onto the loop. `lumen`, `libraw` and
   `errors-rs` may stay or go until they join (owner's call).
 - Check the App's permissions against the list above; add only what is
