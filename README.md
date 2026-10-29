@@ -25,6 +25,7 @@ factory does.
 
 ## Contents
 
+- [What this repo is not](#what-this-repo-is-not)
 - [Layout](#layout)
 - [Rules](#rules)
 - [Profiles](#profiles)
@@ -36,6 +37,14 @@ factory does.
 - [The rsb family](#the-rsb-family)
 - [Contributing and security](#contributing-and-security)
 - [License](#license)
+
+## What this repo is not
+
+The registry holds how software is shaped — rules, heuristics, checks,
+patterns, profiles — never secrets, data, telemetry or provider
+configuration. Credentials live with the custodian, run data and
+scorecards live with Gauge and the governed repositories, and a profile
+names what a provider must be configured with, never the values.
 
 ## Layout
 
@@ -295,7 +304,9 @@ This is a single-owner project: rules and consequences are the owner's
 call, so outside pull requests are not expected. Issues pointing out a
 mistake are welcome. If you find a leaked private detail, or a rule or
 profile file that would weaken an agent's limits, please report it
-privately (see `SECURITY.md` once it lands) rather than in a public issue.
+privately (see [SECURITY.md](SECURITY.md)) rather than in a public issue.
+The rules for issues and pull requests are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
