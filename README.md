@@ -1,62 +1,135 @@
-# rsb agent-registry
+# agent-registry
 
-The registry the coding agents are held to, and the standards shared by the
-rsb apps. It is part of RSB Workflow (`rsb-workflow`), the system that takes
-an accepted ticket to a merged change with an agent as the implementer and
-evidence in place of review. Gauge (`../gauge`), the workflow's engine,
-reads this repository; it holds no rule content of its own. Agents never
-read it: they read what Gauge renders from it.
+The rules, profiles, standards, schemas and vocabulary that the coding
+agents of `rsb-workflow` are held to. It is data, not code: TOML, JSON
+Schema, Markdown and the template files a governed repository is built
+from. There is nothing to install.
 
-## What lives here
+`rsb-workflow` is a software factory. It takes an accepted ticket to a
+merged change, with an agent as the implementer and evidence in place of
+review. Its pieces:
 
-- `rules/`: one TOML file per rule, `rules/<id>.toml`, in the v2 format
-  (`schemas/rule/v1`): a one-line `statement`, a `why`, a `scope` table
-  (`paths`, `exclude`), a `check_class` (`exact`, `approximate`,
-  `judgement`), a `consequence` (set by the owner), a `lifecycle` table
-  (`state`, `since`) and its `checks`. Ids
-  are opaque (`rl-NNNN`), assigned in creation order and never reused; a
-  retired rule stays. Rule text lives here for every profile node, repo
-  leaves included. The one exception is the pointer transition: a rule
-  that restates an app's numbered `engineering/` rule carries
-  `source = { file, number }` and a `why` that points at it, and
-  `source` retires when `gauge plan` renders and the text moves here.
-  The three consequence classes, for an enforced rule (a trial rule
-  only reports):
-  - `business`: blocks.
-  - `containment`: blocks and never becomes debt.
+- [Gauge](https://github.com/rsb/gauge), the engine, reads this
+  repository, renders what an agent sees from it, and checks the agent's
+  work against it. Gauge holds no rule content of its own.
+- [agent-box](https://github.com/rsb/agent-box) is the sandbox an agent
+  runs in.
+- Agents never read this repository directly. They read the `AGENTS.md`
+  region and `rules.json` that Gauge renders from it, at a pinned
+  revision.
+
+You may find it useful as a worked example of governing coding agents
+with explicit, versioned, checkable rules rather than prompt text. It is
+not a general-purpose policy engine, and the formats change as the
+factory does.
+
+## Contents
+
+- [What this repo is not](#what-this-repo-is-not)
+- [Layout](#layout)
+- [Rules](#rules)
+- [Profiles](#profiles)
+- [How governance files are checked](#how-governance-files-are-checked)
+- [Schemas](#schemas)
+- [Glossary](#glossary)
+- [Standards](#standards)
+- [Checking the registry](#checking-the-registry)
+- [The rsb family](#the-rsb-family)
+- [Contributing and security](#contributing-and-security)
+- [License](#license)
+
+## What this repo is not
+
+The registry holds how software is shaped — rules, heuristics, checks,
+patterns, profiles — never secrets, data, telemetry or provider
+configuration. Credentials live with the custodian, run data and
+scorecards live with Gauge and the governed repositories, and a profile
+names what a provider must be configured with, never the values.
+
+## Layout
+
+| Path | What it holds |
+|---|---|
+| `rules/` | one TOML file per rule, `rules/rl-NNNN.toml` |
+| `heuristics/` | one TOML file per heuristic, `heuristics/hr-NNNN.toml` (none yet) |
+| `profiles/` | the layers a repository is minted and reconciled from: a `profile.toml` and a `files/` tree each |
+| `schemas/` | JSON Schema for every format that crosses between the owner, the agent and the custodian, with fixtures and `check.py` |
+| `glossary/` | one TOML file per term of the factory's vocabulary |
+| `standards/` | prose standards shared by the Rust apps |
+| `repos.toml` | every repository in the portfolio, its role, local path and status |
+
+`rules/` and `profiles/` move together at one revision, so a rule and
+the profile that selects it land in one commit. A PR changes one of the
+two trees, or both when they change for one reason.
+
+## Rules
+
+A rule is a statement about the code that must hold. It has an opaque id
+(`rl-NNNN`, assigned in creation order, never reused) and at least one
+check. A retired rule keeps its file and id, so old findings stay
+readable. Example (`schemas/rule/v1/fixtures/valid/containment.toml`):
+
+```toml
+id          = "rl-0043"
+statement   = "Workflows pin actions by commit SHA and declare permissions."
+why         = "A moved tag runs foreign code with the repo's token."
+check_class = "exact"
+consequence = "containment"
+
+[scope]
+paths = [".github/workflows/**"]
+
+[lifecycle]
+state = "enforced"
+since = "2026-10-28"
+
+[[checks]]
+kind = "script"
+ref  = "tools/rules/workflow-pins.mjs"
+```
+
+- `statement`: one line. `why`: the reason, also one line.
+- `scope`: the `paths` it covers and any it `exclude`s.
+- `check_class`: how mechanical its checks are: `exact`, `approximate` or
+  `judgement`. Checks are expected to climb toward exact; a rule whose
+  only check is a judgement is a residual, not a resting state.
+- `consequence`, set by the owner, for an enforced rule (a rule in
+  `trial` only reports):
+  - `business`: blocks the change.
+  - `containment`: blocks, and never becomes debt. For rules that keep
+    the agent inside its limits.
   - `coherence`: never blocks; accrues debt.
-- `heuristics/`: one TOML file per heuristic, `heuristics/hr-NNNN.toml`
-  (`schemas/heuristic/v1`): a weighed default with permission to
-  deviate. Like a rule without a consequence. None yet.
-- `profiles/`: the layers repos are minted and reconciled from, chained
-  `base › kind › variant › repo` (for example
-  `base › service › cloudflare › gordana-milan`). Each layer has a
-  `profile.toml` (parent, the rules it selects, its files and their
-  ownership class: owned, pointer, merged, rendered or sample; see "How
-  governance files are checked") and a `files/` tree.
-- `standards/`: prose standards shared by the Rust apps.
-- `schemas/`: the formats that cross between the owner, the agent and
-  the custodian: spec and ticket frontmatter, the brief and the outbox;
-  and the rule and heuristic formats. JSON Schema, with fixtures and
-  `check.py`. `schemas/rule/v1` and `schemas/heuristic/v1` are copies
-  generated from Gauge's `rsb-gauge-schema`, which is the schema; regenerate
-  them with `gauge registry schema rule` and `gauge registry schema
-  heuristic` (commands in `schemas/README.md`). Check the registry with
-  `schemas/check.py registry` and `gauge registry lint .`.
-- `repos.toml`: every repository in the portfolio with its role
-  (`factory`, `project`, `reference`, `record`), local path and status.
-  It is the authority for the local layout and for which repos a loop
-  may open on.
+- `lifecycle`: `state` (`draft`, `trial`, `enforced`, `retired`) and `since`.
+- `checks`: each a `kind` (`eslint`, `clippy`, `ast-grep`,
+  `dependency-cruiser`, `xtask`, `test`, `script`, `review`) and a `ref`.
 
-`rules/` and `profiles/` move together at one revision, so a rule and the
-profile that selects it land in one commit. A PR changes one of the two
-trees, or both when they change for one reason: #5 moved rl-0003's and
-rl-0005's CI pointers in `rules/` with the `pr.yml` they name in
-`profiles/`.
+A rule that restates a numbered rule in an app's own `engineering/` docs
+carries `source = { file, number }` and a `why` that points at it. That
+pointer retires once Gauge renders the rule and the text moves here.
 
-A rule may serve one repo. A standard enters `standards/` only when a
-second app needs it; until then it lives in the app's own `engineering/`.
-Naming is the one exception, because it is family-level by definition.
+A heuristic is a weighed default with permission to deviate: like a rule
+without a consequence, and it must record at least one counter-case. A
+rule must not have one. The format is `schemas/heuristic/v1`.
+
+## Profiles
+
+Profiles are layers chained `base › kind › variant › repo`, for example
+`base › service › cloudflare › daybook`. Each layer's `profile.toml`
+names its parent, the rules it selects, and the files it manages with
+their class:
+
+```toml
+name   = "cloudflare"
+parent = "service"
+rules  = []
+
+[files]
+".claude/settings.json" = "owned"
+".githooks/agent-guard" = "owned"
+```
+
+Rule text lives here for every layer, repository leaves included.
+`profiles/tools/overlay-diff.sh` compares a repository with its chain.
 
 ## How governance files are checked
 
@@ -78,12 +151,32 @@ A managed file has one of five classes.
 - Sample: a starting point the repo is free to change. `overlay-diff.sh`
   reports a difference without failing, and rl-0009 does not check it.
 
+## Schemas
+
+JSON Schema 2020-12 for every format that crosses a boundary: spec and
+ticket frontmatter, the brief (one attempt's task and limits, written by
+the custodian), the outbox (the effects the agent intends, applied by the
+custodian), and the rule and heuristic formats. See
+[schemas/README.md](schemas/README.md) and
+[schemas/outbox/v1/README.md](schemas/outbox/v1/README.md).
+
+`schemas/rule/v1` and `schemas/heuristic/v1` are copies generated from
+Gauge's `rsb-gauge-schema` crate, which is the schema; regenerate them
+with `gauge registry schema rule` and `gauge registry schema heuristic`.
+
+## Glossary
+
+The factory's ubiquitous language: when a name appears in a rule, a
+brief, a render or a scorecard, it means what its file in `glossary/`
+says. The glossary is covered by the render hash, so a glossary change is
+a registry change. Format in [glossary/README.md](glossary/README.md).
+
 ## Standards
 
-One file per standard in `standards/`. Each has a Why, a Paths and a
-Check section; an app's `engineering/` holds a pointer to the standard,
-the app's boundary, and the check that enforces it there. These become
-material for the `rust-linux` profile layer.
+One file per standard in `standards/`, each with a Why, a Paths and a
+Check section. An app's `engineering/` holds a pointer to the standard,
+the app's boundary, and the check that enforces it there. A standard
+enters `standards/` only when a second app needs it.
 
 - `errors.md`: one snafu enum per crate, `{e}` is the whole line, with
   the file and line of each layer on by default.
@@ -94,7 +187,25 @@ material for the `rust-linux` profile layer.
 The runtime pieces and the checks live in the `rsb-errors` crate,
 repository `rsb/errors-rs`, pinned by tag (`v0.1.1`).
 
-## Apps
+## Checking the registry
+
+Needs Python 3.11 or later with `jsonschema` and `PyYAML`.
+
+```sh
+python3 schemas/check.py fixtures   # every fixture passes or fails as its path says
+python3 schemas/check.py registry   # rules/*.toml and heuristics/*.toml
+gauge registry lint .               # with Gauge installed
+```
+
+The profile scripts carry their own tests, run with `node --test` from a
+layer's `files/` directory.
+
+## The rsb family
+
+The registry also records the conventions of the `rsb` family of
+repositories and apps.
+
+### Apps
 
 | App | What it is | Repository |
 |---|---|---|
@@ -115,7 +226,7 @@ RSB Workflow's own pieces are not suite apps:
 | Insights | the owner's desktop view across the workflow and all projects; composes what the CLI offers, holds no domain logic | package in `rsb/gauge` |
 | `agent-driver` | the only binary that holds the GitHub App key; observes and acts on GitHub, runs the tick | package in `rsb/gauge` (`crates/agent-driver`) |
 
-## Naming
+### Naming
 
 - `rsb` is the organisation and the brand in every machine-facing name. It is
   always lowercase. `rsb.lab` appears only in prose about the photography and
@@ -156,9 +267,16 @@ RSB Workflow's own pieces are not suite apps:
   2026-10-23 when the engine became Gauge. Whether Easel returns to the
   creative suite is open.
 
-## Repositories
+Naming is the one standard kept here before a second app needs it,
+because it is family-level by definition.
 
-The full list, with roles and paths, is `repos.toml`. Notes on some:
+### Repositories
+
+The full list, with roles and paths, is `repos.toml`. Roles are
+`factory` (what the loop runs on), `project` (what the loop produces),
+`reference` (a profile's reference app) and `record`. A loop may open only
+on a `project` or `reference` repo that carries `.rsb/governance.lock`.
+Notes on some:
 
 - `rsb/agent-registry`: this repository. Renamed from `rsb/rules` on
   2026-10-19.
@@ -168,7 +286,7 @@ The full list, with roles and paths, is `repos.toml`. Notes on some:
 - `rsb/agent-driver`: archived. Its key, token and GitHub client code
   moved into `rsb/gauge`; its gatekeeper design (an agent asking it to act
   mid-run) was replaced by the brief and outbox.
-- `rsb/agent-box`: the bubblewrap sandbox; the only place an agent runs.
+- `rsb/agent-box`: the sandbox; the only place an agent runs.
 - `rsb/agent-host`: the at-desk sandbox configuration, kept in git.
 - `rsb/rsb-skills`: how the owner and agents work.
 - `rsb/research`: research, decisions, handoffs and retrospectives, one
@@ -179,3 +297,17 @@ The full list, with roles and paths, is `repos.toml`. Notes on some:
   is public and depends on it.
 - `rsb/<app>`: one repository per app, holding its code, its `engineering/`
   rules with their checks, and its `product/` truth.
+
+## Contributing and security
+
+This is a single-owner project: rules and consequences are the owner's
+call, so outside pull requests are not expected. Issues pointing out a
+mistake are welcome. If you find a leaked private detail, or a rule or
+profile file that would weaken an agent's limits, please report it
+privately (see [SECURITY.md](SECURITY.md)) rather than in a public issue.
+The rules for issues and pull requests are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+[MIT](LICENSE).

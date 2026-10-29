@@ -44,7 +44,7 @@ owner decides. The driver posts no check run at M1 (R2).
   close the loop, write the run record).
 - The colour and failing rows are read from the `scorecard` check run
   that `pr.yml` writes (its output format is the contract, copied from
-  gordana-milan's `verdict.mjs`; the ticket names the field it parses).
+  daybook's `verdict.mjs`; the ticket names the field it parses).
   An output the parser cannot read parks `unrecognized_state` rather
   than guessing.
 - The run record (Q3, run-level, beside the per-rule rows that arrive

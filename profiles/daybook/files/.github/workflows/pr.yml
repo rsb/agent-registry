@@ -58,12 +58,12 @@ jobs:
         run: node tools/ci/run-stage.mjs --stage knip -- pnpm knip
       # The build is a test (BFF rule 21).
       - if: ${{ !cancelled() }}
-        run: node tools/ci/run-stage.mjs --stage build -- pnpm --filter @gm/web build
+        run: node tools/ci/run-stage.mjs --stage build -- pnpm --filter @daybook/web build
       # Fails if the API's bundle does not build or its module scope throws;
       # prints startup CPU and bundle size without failing on them (API
       # rule 78).
       - if: ${{ !cancelled() }}
-        run: node tools/ci/run-stage.mjs --stage startup -- pnpm --filter @gm/api check:startup
+        run: node tools/ci/run-stage.mjs --stage startup -- pnpm --filter @daybook/api check:startup
       - name: Upload the stage results
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -110,14 +110,14 @@ jobs:
       - run: pnpm db:setup
       # pnpm test, split so the db package's tests are a stage of their
       # own; the two filters cover the same packages.
-      - run: node tools/ci/run-stage.mjs --stage db-tests --counts vitest -- pnpm --filter @gm/db test
+      - run: node tools/ci/run-stage.mjs --stage db-tests --counts vitest -- pnpm --filter @daybook/db test
       - if: ${{ !cancelled() }}
-        run: node tools/ci/run-stage.mjs --stage unit --counts vitest -- pnpm --recursive --filter '!@gm/db' test
+        run: node tools/ci/run-stage.mjs --stage unit --counts vitest -- pnpm --recursive --filter '!@daybook/db' test
       # The journeys (BFF rules 18 and 21), on their own database.
       - if: ${{ !cancelled() }}
-        run: pnpm --filter @gm/web exec playwright install --with-deps --only-shell chromium
+        run: pnpm --filter @daybook/web exec playwright install --with-deps --only-shell chromium
       - if: ${{ !cancelled() }}
-        run: node tools/ci/run-stage.mjs --stage e2e --counts playwright -- pnpm --filter @gm/web e2e
+        run: node tools/ci/run-stage.mjs --stage e2e --counts playwright -- pnpm --filter @daybook/web e2e
       - name: Upload the journeys' traces
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

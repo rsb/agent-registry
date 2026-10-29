@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security problem or a leaked private detail
+    url: https://github.com/rsb/agent-registry/security/advisories/new
+    about: Please report these privately, not as a public issue.

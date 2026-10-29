@@ -8,7 +8,7 @@ const WORKFLOW = `
     steps:
       - run: node tools/ci/run-stage.mjs --stage lint -- pnpm lint
       - if: \${{ !cancelled() }}
-        run: node tools/ci/run-stage.mjs --stage unit --counts vitest -- pnpm --recursive --filter '!@gm/db' test
+        run: node tools/ci/run-stage.mjs --stage unit --counts vitest -- pnpm --recursive --filter '!@daybook/db' test
       - name: schema.sql matches the migrations
         if: \${{ !cancelled() }}
         run: >-
@@ -24,7 +24,7 @@ const stage = (name, status = 'ok', counts = null) => ({ stage: name, status, se
 describe('stageForStep', () => {
   test('finds the stage by command or by step name', () => {
     assert.equal(stageForStep(WORKFLOW, 'pnpm lint'), 'lint');
-    assert.equal(stageForStep(WORKFLOW, "pnpm --recursive --filter '!@gm/db' test"), 'unit');
+    assert.equal(stageForStep(WORKFLOW, "pnpm --recursive --filter '!@daybook/db' test"), 'unit');
     assert.equal(stageForStep(WORKFLOW, 'schema.sql matches the migrations'), 'schema-diff');
   });
 
@@ -133,7 +133,7 @@ describe('renderComment', () => {
 describe('historyRow', () => {
   const input = {
     runId: 42,
-    repo: 'rsb/gordana-milan',
+    repo: 'rsb/daybook',
     sha: 'abc',
     pr: 7,
     verdict: 'GREEN',
@@ -150,7 +150,7 @@ describe('historyRow', () => {
   test('the fourteen fields', () => {
     assert.deepEqual(historyRow(input), {
       run_id: 42,
-      repo: 'rsb/gordana-milan',
+      repo: 'rsb/daybook',
       sha: 'abc',
       pr: 7,
       verdict: 'GREEN',

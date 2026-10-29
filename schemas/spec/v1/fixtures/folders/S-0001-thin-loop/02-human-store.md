@@ -27,7 +27,7 @@ one tick, so nothing needs to be shared yet. SQLite is the store's
 long-term dialect: at M5, when two machines, leases and the phone need a
 shared store, it moves behind the Worker into Cloudflare (Durable
 Objects or D1, both SQLite) in the owner's personal paid account, never
-the gordana-milan account. The schema and queries written now carry
+the daybook account. The schema and queries written now carry
 over; only what surrounds them changes. That M5 move gets its own
 design session. This revises D5: no Supabase project is created for
 Gauge.

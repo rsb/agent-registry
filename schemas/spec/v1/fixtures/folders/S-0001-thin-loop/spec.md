@@ -56,7 +56,7 @@ post it until M2; R1 declined: the Codex adapter stays at M4).
 - JSONL export of history into git (**proposal**: store only at M1;
   Q19 stays open).
 - Insights. No empty `insights` package is created (**proposal**).
-- gordana-milan. Nothing in this spec touches it.
+- daybook. Nothing in this spec touches it.
 
 ## How this spec is built
 
