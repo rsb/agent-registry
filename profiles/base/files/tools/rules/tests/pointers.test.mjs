@@ -54,9 +54,8 @@ const WORKFLOW = `jobs:
   tests:
     runs-on: ubuntu-24.04
     steps:
-      # pnpm test, split so the db package's tests are a stage of their
-      # own; the two filters cover the same packages.
-      - run: node tools/ci/run-stage.mjs --stage db-tests -- pnpm --filter @gm/db test
+      # pnpm test runs in its own stages; this one runs knip.
+      - run: node tools/ci/run-stage.mjs --stage knip -- pnpm knip
       - name: schema.sql matches the migrations
         if: \${{ !cancelled() }}
         run: >-
@@ -80,13 +79,13 @@ function ciFixture(job, step) {
 }
 
 test('a CI pointer to a run line, a folded run line or a step name passes', () => {
-  for (const step of ['pnpm --filter @gm/db test', 'pnpm db:schema', 'schema.sql matches the migrations']) {
+  for (const step of ['pnpm knip', 'pnpm db:schema', 'schema.sql matches the migrations']) {
     assert.equal(ciFixture('tests', step).status, 0, step);
   }
 });
 
-// The regression: rl-0003 and rl-0005 pointed at "pnpm test" after the
-// tests job split it, and the comment kept the pointer passing.
+// The regression: two rules pointed at "pnpm test" after the tests job
+// split it, and the comment kept the pointer passing.
 test('a CI pointer that matches only a comment fails', () => {
   const r = ciFixture('tests', 'pnpm test');
   assert.equal(r.status, 1);
