@@ -56,7 +56,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # Built before anything changes, so a broken build migrates nothing.
-      - run: pnpm --filter @gm/web build
+      - run: pnpm --filter @daybook/web build
 
       # A pending migration marked `-- night` waits for 7pm–6am in Los
       # Angeles in production; staging ignores the marker (migration rule
@@ -88,7 +88,7 @@ jobs:
           --no-dump-schema migrate --strict
 
       - name: Deploy the API
-        run: pnpm --filter @gm/api exec wrangler deploy --env "$DEPLOY_ENV"
+        run: pnpm --filter @daybook/api exec wrangler deploy --env "$DEPLOY_ENV"
 
       - name: Deploy web
-        run: pnpm --filter @gm/web exec wrangler deploy --env "$DEPLOY_ENV"
+        run: pnpm --filter @daybook/web exec wrangler deploy --env "$DEPLOY_ENV"
