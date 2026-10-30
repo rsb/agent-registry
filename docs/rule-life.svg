@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="396" viewBox="0 0 760 396" role="img">
+<title>agent-registry: a rule&#x27;s life</title>
+<desc>A rule&#x27;s life. The owner adds rules/rl-NNNN.toml with an id that is never reused. It moves from draft to trial, where its checks run and only report, to enforced, where its consequence applies: business blocks the change, containment blocks and never becomes debt, coherence never blocks and accrues debt. A retired rule keeps its file and id so old findings stay readable. Separately, its checks climb from judgement (review) through approximate to exact; a rule whose only check is a judgement is a residual.</desc>
+<style>
+text{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;fill:#3d3d3a}
+.th{font-size:13px;font-weight:600}.ts{font-size:12px}.tx{font-size:11px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px}
+.bg{fill:#ffffff}
+.box{fill:#f1efe8;stroke:#888780}.frame{fill:none;stroke:#888780;stroke-dasharray:4 4}
+.p{fill:#eeedfe;stroke:#534ab7}.pt{fill:#3c3489}
+.g{fill:#e1f5ee;stroke:#0f6e56}.gt{fill:#085041}
+.a{fill:#faeeda;stroke:#ba7517}.at{fill:#633806}
+.ref{fill:none;stroke:#534ab7;stroke-dasharray:4 3}
+.e{fill:none;stroke:#888780;stroke-width:1.2}.d{stroke-dasharray:5 4}
+.lane{stroke:#b4b2a9;stroke-width:1;stroke-dasharray:3 4}
+.lbl{font-size:11px;fill:#5f5e5a}
+.loopf{fill:none;stroke:#ba7517;stroke-width:1}.loopt{font-size:11px;font-weight:600;fill:#854f0b}
+.ah{fill:#888780}
+@media (prefers-color-scheme:dark){
+text{fill:#c2c0b6}.bg{fill:#0d1117}
+.box{fill:#2c2c2a;stroke:#888780}
+.p{fill:#3c3489;stroke:#afa9ec}.pt{fill:#eeedfe}
+.g{fill:#085041;stroke:#5dcaa5}.gt{fill:#e1f5ee}
+.a{fill:#633806;stroke:#ef9f27}.at{fill:#faeeda}
+.ref{stroke:#afa9ec}
+.lane{stroke:#5f5e5a}.lbl{fill:#9a9890}
+.loopf{stroke:#ef9f27}.loopt{fill:#fac775}}
+</style>
+<defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 0 L10 5 L0 10 z"/></marker></defs>
+<rect class="box" x="40.0" y="40" width="150" height="70" rx="8" stroke-width="0.8"/>
+<text class="th " x="115.0" y="71.0" text-anchor="middle">draft</text>
+<text class="tx " x="115.0" y="87.0" text-anchor="middle">written</text>
+<path class="e" d="M190.0 75 L214.67000000000002 75" marker-end="url(#m)"/>
+<rect class="a" x="216.67000000000002" y="40" width="150" height="70" rx="8" stroke-width="0.8"/>
+<text class="th at" x="291.67" y="63.0" text-anchor="middle">trial</text>
+<text class="tx at" x="291.67" y="79.0" text-anchor="middle">checks run,</text>
+<text class="tx at" x="291.67" y="95.0" text-anchor="middle">only report</text>
+<path class="e" d="M366.67 75 L391.34000000000003 75" marker-end="url(#m)"/>
+<rect class="g" x="393.34000000000003" y="40" width="150" height="70" rx="8" stroke-width="0.8"/>
+<text class="th gt" x="468.34000000000003" y="63.0" text-anchor="middle">enforced</text>
+<text class="tx gt" x="468.34000000000003" y="79.0" text-anchor="middle">consequence</text>
+<text class="tx gt" x="468.34000000000003" y="95.0" text-anchor="middle">applies</text>
+<path class="e" d="M543.34 75 L568.01 75" marker-end="url(#m)"/>
+<rect class="box" x="570.01" y="40" width="150" height="70" rx="8" stroke-width="0.8"/>
+<text class="th " x="645.01" y="63.0" text-anchor="middle">retired</text>
+<text class="tx " x="645.01" y="79.0" text-anchor="middle">kept, so old</text>
+<text class="tx " x="645.01" y="95.0" text-anchor="middle">findings resolve</text>
+<text class="lbl" x="40" y="28" text-anchor="start">lifecycle.state in rules/rl-NNNN.toml · id rl-NNNN never reused</text>
+<rect class="bg" x="471.3" y="121" width="186.9" height="15" rx="3"/>
+<text class="lbl" x="476.34000000000003" y="132" text-anchor="start">consequence, set by the owner</text>
+<rect class="a" x="40" y="170" width="200" height="78" rx="8" stroke-width="0.8"/>
+<text class="th at" x="140.0" y="205.0" text-anchor="middle">business</text>
+<text class="tx at" x="140.0" y="221.0" text-anchor="middle">blocks the change</text>
+<rect class="p" x="290" y="170" width="200" height="78" rx="8" stroke-width="0.8"/>
+<text class="th pt" x="390.0" y="189.0" text-anchor="middle">containment</text>
+<text class="tx pt" x="390.0" y="205.0" text-anchor="middle">blocks, never debt</text>
+<text class="tx pt" x="390.0" y="221.0" text-anchor="middle">keeps the agent</text>
+<text class="tx pt" x="390.0" y="237.0" text-anchor="middle">inside its limits</text>
+<rect class="box" x="520" y="170" width="200" height="78" rx="8" stroke-width="0.8"/>
+<text class="th " x="620.0" y="197.0" text-anchor="middle">coherence</text>
+<text class="tx " x="620.0" y="213.0" text-anchor="middle">never blocks,</text>
+<text class="tx " x="620.0" y="229.0" text-anchor="middle">accrues debt</text>
+<path class="e" d="M468.34000000000003 110 L468.34000000000003 140 L140 140 L140 168" marker-end="url(#m)"/>
+<path class="e" d="M468.34000000000003 140 L390 140 L390 168" marker-end="url(#m)"/>
+<path class="e" d="M468.34000000000003 140 L620 140 L620 168" marker-end="url(#m)"/>
+<text class="th" x="40" y="290" text-anchor="start">check_class: how mechanical its checks are</text>
+<rect class="box" x="40" y="306" width="190" height="52" rx="8" stroke-width="0.8"/>
+<text class="ts " x="135.0" y="328.0" text-anchor="middle">judgement</text>
+<text class="tx " x="135.0" y="344.0" text-anchor="middle">a reviewer grades it</text>
+<path class="e" d="M230 332 L248 332" marker-end="url(#m)"/>
+<rect class="a" x="250" y="306" width="190" height="52" rx="8" stroke-width="0.8"/>
+<text class="ts at" x="345.0" y="328.0" text-anchor="middle">approximate</text>
+<text class="tx at" x="345.0" y="344.0" text-anchor="middle">a signal, known imprecision</text>
+<path class="e" d="M440 332 L458 332" marker-end="url(#m)"/>
+<rect class="g" x="460" y="306" width="260" height="52" rx="8" stroke-width="0.8"/>
+<text class="ts gt" x="590.0" y="328.0" text-anchor="middle">exact</text>
+<text class="tx gt" x="590.0" y="344.0" text-anchor="middle">fails on every breach, only on one</text>
+<text class="lbl" x="40" y="380" text-anchor="start">Checks are expected to climb toward exact. A rule whose only check is a judgement is a residual, not a resting state.</text>
+</svg>
