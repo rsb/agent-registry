@@ -18,6 +18,8 @@ review. Its pieces:
   region and `rules.json` that Gauge renders from it, at a pinned
   revision.
 
+<img src="docs/flow.svg" alt="From registry to agent: the owner writes rules, profiles, the glossary and schemas here; Gauge reads them at a pinned revision, overlays the profile chain into a governed repository and renders the rsb:rules region of AGENTS.md and tools/rules/rules.json; the agent in agent-box reads only those; its change runs the rule checks in CI, and the verdict weighs the findings by each rule's consequence." width="760">
+
 You may find it useful as a worked example of governing coding agents
 with explicit, versioned, checkable rules rather than prompt text. It is
 not a general-purpose policy engine, and the formats change as the
@@ -103,6 +105,8 @@ ref  = "tools/rules/workflow-pins.mjs"
 - `checks`: each a `kind` (`eslint`, `clippy`, `ast-grep`,
   `dependency-cruiser`, `xtask`, `test`, `script`, `review`) and a `ref`.
 
+<img src="docs/rule-life.svg" alt="A rule's life: draft, then trial (checks run and only report), then enforced (its consequence applies), then retired (kept so old findings resolve). An enforced rule's consequence is business (blocks the change), containment (blocks, never becomes debt) or coherence (never blocks, accrues debt). Its checks climb from judgement through approximate to exact." width="760">
+
 A rule that restates a numbered rule in an app's own `engineering/` docs
 carries `source = { file, number }` and a `why` that points at it. That
 pointer retires once Gauge renders the rule and the text moves here.
@@ -127,6 +131,8 @@ rules  = []
 ".claude/settings.json" = "owned"
 ".githooks/agent-guard" = "owned"
 ```
+
+<img src="docs/profile-chain.svg" alt="The profile chain base, service, cloudflare, daybook: the rules each layer selects and the files it manages, overlaid into the daybook repository with the rendered rules.json and rsb:rules region; below, how overlay-diff.sh and rl-0009 check each of the five file classes." width="760">
 
 Rule text lives here for every layer, repository leaves included.
 `profiles/tools/overlay-diff.sh` compares a repository with its chain.

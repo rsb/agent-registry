@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="680" viewBox="0 0 760 680" role="img">
+<title>agent-registry: from registry to agent</title>
+<desc>How the registry reaches an agent. The owner writes rules, profiles, the glossary and schemas in agent-registry. Gauge reads it at a pinned revision and renders into each governed repository: the profile chain&#x27;s owned, pointer and merged files, the rsb:rules region of AGENTS.md and tools/rules/rules.json. The agent runs in agent-box and reads only the rendered AGENTS.md and rules.json, never the registry. Its change runs the rule checks in CI; the verdict weighs their findings by each rule&#x27;s consequence: business and containment block, coherence accrues debt, and a rule in trial only reports.</desc>
+<style>
+text{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;fill:#3d3d3a}
+.th{font-size:13px;font-weight:600}.ts{font-size:12px}.tx{font-size:11px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px}
+.bg{fill:#ffffff}
+.box{fill:#f1efe8;stroke:#888780}.frame{fill:none;stroke:#888780;stroke-dasharray:4 4}
+.p{fill:#eeedfe;stroke:#534ab7}.pt{fill:#3c3489}
+.g{fill:#e1f5ee;stroke:#0f6e56}.gt{fill:#085041}
+.a{fill:#faeeda;stroke:#ba7517}.at{fill:#633806}
+.ref{fill:none;stroke:#534ab7;stroke-dasharray:4 3}
+.e{fill:none;stroke:#888780;stroke-width:1.2}.d{stroke-dasharray:5 4}
+.lane{stroke:#b4b2a9;stroke-width:1;stroke-dasharray:3 4}
+.lbl{font-size:11px;fill:#5f5e5a}
+.loopf{fill:none;stroke:#ba7517;stroke-width:1}.loopt{font-size:11px;font-weight:600;fill:#854f0b}
+.ah{fill:#888780}
+@media (prefers-color-scheme:dark){
+text{fill:#c2c0b6}.bg{fill:#0d1117}
+.box{fill:#2c2c2a;stroke:#888780}
+.p{fill:#3c3489;stroke:#afa9ec}.pt{fill:#eeedfe}
+.g{fill:#085041;stroke:#5dcaa5}.gt{fill:#e1f5ee}
+.a{fill:#633806;stroke:#ef9f27}.at{fill:#faeeda}
+.ref{stroke:#afa9ec}
+.lane{stroke:#5f5e5a}.lbl{fill:#9a9890}
+.loopf{stroke:#ef9f27}.loopt{fill:#fac775}}
+</style>
+<defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 0 L10 5 L0 10 z"/></marker></defs>
+<rect class="frame" x="20" y="16" width="720" height="112" rx="12" stroke-width="0.8"/><text class="tx" x="32" y="33" font-weight="600">rsb/agent-registry · written by the owner</text>
+<rect class="a" x="40" y="46" width="156" height="62" rx="8" stroke-width="0.8"/>
+<text class="ts at" x="118.0" y="73.0" text-anchor="middle">rules/</text>
+<text class="tx at" x="118.0" y="89.0" text-anchor="middle">rl-NNNN.toml</text>
+<rect class="a" x="212" y="46" width="156" height="62" rx="8" stroke-width="0.8"/>
+<text class="ts at" x="290.0" y="73.0" text-anchor="middle">profiles/</text>
+<text class="tx at" x="290.0" y="89.0" text-anchor="middle">base › … › repo</text>
+<rect class="a" x="384" y="46" width="156" height="62" rx="8" stroke-width="0.8"/>
+<text class="ts at" x="462.0" y="73.0" text-anchor="middle">glossary/</text>
+<text class="tx at" x="462.0" y="89.0" text-anchor="middle">one term per file</text>
+<rect class="a" x="556" y="46" width="156" height="62" rx="8" stroke-width="0.8"/>
+<text class="ts at" x="634.0" y="73.0" text-anchor="middle">schemas/</text>
+<text class="tx at" x="634.0" y="89.0" text-anchor="middle">brief, outbox, rule…</text>
+<path class="e" d="M380 128 L380 176" marker-end="url(#m)"/>
+<rect class="bg" x="383.0" y="145" width="162.5" height="15" rx="3"/>
+<text class="lbl" x="388" y="156" text-anchor="start">read at a pinned revision</text>
+<rect class="g" x="250" y="178" width="260" height="60" rx="8" stroke-width="0.8"/>
+<text class="th gt" x="380.0" y="204.0" text-anchor="middle">Gauge</text>
+<text class="tx gt" x="380.0" y="220.0" text-anchor="middle">renders · checks · holds no rules</text>
+<rect class="frame" x="20" y="280" width="720" height="150" rx="12" stroke-width="0.8"/><text class="tx" x="32" y="297" font-weight="600">governed repository · e.g. daybook</text>
+<path class="e" d="M320 238 L320 262 L140 262 L140 312" marker-end="url(#m)"/>
+<path class="e" d="M380 238 L380 312" marker-end="url(#m)"/>
+<path class="e" d="M440 238 L440 262 L620 262 L620 312" marker-end="url(#m)"/>
+<rect class="bg" x="148.8" y="255" width="162.5" height="15" rx="3"/>
+<text class="lbl" x="230" y="266" text-anchor="middle">overlay the profile chain</text>
+<rect class="bg" x="476.2" y="255" width="107.6" height="15" rx="3"/>
+<text class="lbl" x="530" y="266" text-anchor="middle">render the rules</text>
+<rect class="bg" x="381.0" y="291" width="95.4" height="15" rx="3"/>
+<text class="lbl" x="386" y="302" text-anchor="start">merge + render</text>
+<rect class="box" x="40" y="314" width="200" height="98" rx="8" stroke-width="0.8"/>
+<text class="ts " x="140.0" y="343.0" text-anchor="middle">Profile files</text>
+<text class="tx " x="140.0" y="359.0" text-anchor="middle">owned · pointer · sample</text>
+<text class="mono " x="140.0" y="375.0" text-anchor="middle">tools/rules/*.mjs</text>
+<text class="mono " x="140.0" y="391.0" text-anchor="middle">.githooks/, workflows</text>
+<rect class="p" x="280" y="314" width="200" height="98" rx="8" stroke-width="0.8"/>
+<text class="ts pt" x="380.0" y="343.0" text-anchor="middle">AGENTS.md</text>
+<text class="mono pt" x="380.0" y="359.0" text-anchor="middle">rsb:containment region</text>
+<text class="mono pt" x="380.0" y="375.0" text-anchor="middle">rsb:rules region</text>
+<text class="tx pt" x="380.0" y="391.0" text-anchor="middle">the rest is the repo&#x27;s</text>
+<rect class="p" x="520" y="314" width="200" height="98" rx="8" stroke-width="0.8"/>
+<text class="ts pt" x="620.0" y="343.0" text-anchor="middle">rules.json</text>
+<text class="mono pt" x="620.0" y="359.0" text-anchor="middle">tools/rules/rules.json</text>
+<text class="tx pt" x="620.0" y="375.0" text-anchor="middle">the selected rules</text>
+<text class="tx pt" x="620.0" y="391.0" text-anchor="middle">and their checks</text>
+<rect class="frame" x="20" y="466" width="340" height="100" rx="12" stroke-width="0.8"/><text class="tx" x="32" y="483" font-weight="600">agent-box</text>
+<rect class="p" x="60" y="494" width="260" height="56" rx="8" stroke-width="0.8"/>
+<text class="th pt" x="190.0" y="518.0" text-anchor="middle">agent</text>
+<text class="tx pt" x="190.0" y="534.0" text-anchor="middle">Claude Code or Codex</text>
+<path class="e" d="M380 412 L380 446 L250 446 L250 492" marker-end="url(#m)"/>
+<path class="e" d="M620 412 L620 446 L520 446 L520 460 L300 460 L300 492" marker-end="url(#m)"/>
+<rect class="bg" x="311.0" y="435" width="40.5" height="15" rx="3"/>
+<text class="lbl" x="316" y="446" text-anchor="start">reads</text>
+<text class="lbl" x="190" y="584" text-anchor="middle">never reads the registry itself</text>
+<rect class="g" x="420" y="494" width="300" height="56" rx="8" stroke-width="0.8"/>
+<text class="ts gt" x="570.0" y="518.0" text-anchor="middle">rule checks in CI</text>
+<text class="tx gt" x="570.0" y="534.0" text-anchor="middle">eslint, tests, tools/rules/*.mjs …</text>
+<path class="e" d="M320 522 L418 522" marker-end="url(#m)"/>
+<rect class="bg" x="333.5" y="505" width="71.0" height="15" rx="3"/>
+<text class="lbl" x="369" y="516" text-anchor="middle">its change</text>
+<path class="e" d="M570 550 L570 600" marker-end="url(#m)"/>
+<rect class="bg" x="573.0" y="569" width="58.8" height="15" rx="3"/>
+<text class="lbl" x="578" y="580" text-anchor="start">findings</text>
+<rect class="g" x="420" y="602" width="300" height="56" rx="8" stroke-width="0.8"/>
+<text class="ts gt" x="570.0" y="626.0" text-anchor="middle">the verdict</text>
+<text class="tx gt" x="570.0" y="642.0" text-anchor="middle">findings weighed by consequence</text>
+<rect class="box" x="40" y="602" width="340" height="72" rx="6" stroke-width="0.6"/>
+<text class="tx " x="49" y="618">business: blocks the change</text>
+<text class="tx " x="49" y="633">containment: blocks, never becomes debt</text>
+<text class="tx " x="49" y="648">coherence: never blocks, accrues debt</text>
+<text class="tx " x="49" y="663">a rule in trial only reports</text>
+<path class="e" d="M420 630 L382 630" marker-end="url(#m)"/>
+</svg>
