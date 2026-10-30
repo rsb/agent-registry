@@ -1,0 +1,5 @@
+# Changes to these paths need the owner's review (ruleset "main").
+/rules/     @rsb
+/profiles/  @rsb
+/glossary/  @rsb
+/.github/   @rsb
