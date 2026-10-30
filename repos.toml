@@ -55,7 +55,7 @@ status = "active"
 name = "agent-driver"
 role = "factory"
 path = "factory/agent-driver"
-status = "archived" # folded into gauge as crates/agent-driver
+status = "archived"           # folded into gauge as crates/agent-driver
 
 [[repo]]
 name = "research"
@@ -68,7 +68,7 @@ name = "daybook"
 role = "project"
 kind = "service"
 path = "projects/services/daybook"
-status = "active" # blocked from the loop until it can carry its tickets
+status = "active"                  # blocked from the loop until it can carry its tickets
 
 [[repo]]
 name = "rollout"
@@ -99,9 +99,9 @@ path = "projects/lib/libraw"
 status = "active"
 
 [[repo]]
-name = "ref-rsb-serverless-stack"
+name = "reference-workers-hono-svelte"
 role = "reference"
 kind = "service"
-profile = "rsb-serverless-stack"
-path = "ref/ref-rsb-serverless-stack"
-status = "planned"
+profile = "workers-hono-svelte"
+path = "reference/reference-workers-hono-svelte"
+status = "minted"
